@@ -13,10 +13,14 @@ class VarObj:
         self.is_restart = False
         self.is_check_code = False
 
+        self.bounce_threshold = 10
+        self.bounce = 0
+        self.bounce_increment = 1
+
         self.score = 0
         self.display_score = 0
         self.display_increment = 5
-        self.max_time = 1
+        self.max_time = 59
         self.timer = self.max_time
         # self.codeline_str = "Arcade.alternate(is_the_font, [to, be_used])"
         self.codeline_str = "test"

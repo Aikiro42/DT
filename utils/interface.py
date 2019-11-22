@@ -51,14 +51,15 @@ class Rectangle(object):
 
 
 class Textbox(object):
-    def __init__(self, batch, text='', x=0, y=0, width=200, text_color=(0, 0, 0, 255), font_name='Arial', pad=2):
+    def __init__(self, batch, text='', x=0, y=0, width=200,
+                 text_color=(0, 0, 0, 255), font_name='Arial', pad=2, font_size=12):
 
         self.rendered = False
         self.batch = batch
 
         self.document = pyglet.text.document.UnformattedDocument(text)
         self.document.set_style(0, len(self.document.text),
-                                dict(color=text_color, font_name=font_name)
+                                dict(color=text_color, font_name=font_name, font_size=font_size)
                                 )
         font = self.document.get_font()
         height = font.ascent - font.descent
@@ -73,6 +74,7 @@ class Textbox(object):
         self.rectangle = None
         self.pad = pad
         self.has_outline = False
+        self.box_color = [200, 200, 220, 255]
 
     def hit(self, cursor_x, cursor_y):
         ox = self.layout.x
@@ -88,20 +90,23 @@ class Textbox(object):
     def set_text(self, new_text):
         self.document.text = new_text
 
-    def set_text_color(self, color: tuple):
+    def set_text_color(self, r, g, b, a=255):
         self.document.set_style(0, len(self.document.text),
-                                dict(color=color)
+                                dict(color=(r, g, b, a))
                                 )
 
-    def set_box_color(self, color: list):
-        self.draw_rectangle(color=color)
+    def set_box_color(self, r, g, b, a=255):
+        self.box_color = [r, g, b, a]
 
-    def draw_rectangle(self, color=[200, 200, 220, 255]):
+    def set_caret_color(self, r, g, b):
+        self.caret.color = [r, g, b]
+
+    def draw_rectangle(self):
         self.rectangle = Rectangle(self.layout.x - self.pad,
                                    self.layout.y - self.pad,
-                                   self.layout.x + (self.layout.width) + self.pad,
-                                   self.layout.y + (self.layout.height) + self.pad,
-                                   self.batch, color=color)
+                                   self.layout.x + self.layout.width + self.pad,
+                                   self.layout.y + self.layout.height + self.pad,
+                                   self.batch, color=self.box_color)
         self.has_outline = True
 
     def set_coor(self, x, y):

@@ -5,6 +5,7 @@ from game.core import window, gamevars
 import game.title
 import game.gamemode
 import game.pause
+import game.endgame
 
 from utils.interface import *
 from utils.utils import *
@@ -22,6 +23,14 @@ def timer_countdown(dt):
 
 # Checks for changes in the game, basically the game logic
 def update(dt):
+
+    if gamevars.game_state == MAIN_MENU:
+        game.title.title.coor.y += gamevars.bounce_increment
+        gamevars.bounce += gamevars.bounce_increment
+        if gamevars.bounce == gamevars.bounce_threshold or gamevars.bounce == 0:
+            gamevars.bounce_increment *= -1
+
+    # Timer update
     if gamevars.game_state == GAME_MODE:
         game.gamemode.timer_label.text = str(gamevars.timer)
         if not gamevars.is_timer:
@@ -32,11 +41,13 @@ def update(dt):
             pyglet.clock.unschedule(timer_countdown)
             gamevars.is_timer = False
 
+    # Game Over
     if gamevars.timer < 0 and gamevars.game_state != ENDGAME:
-        gamevars.game_state = ENDGAME
+        window.unfocus()
         pyglet.clock.unschedule(timer_countdown)
         gamevars.is_timer = False
-        gamevars.timer = 59
+        gamevars.timer = gamevars.max_time
+        gamevars.game_state = ENDGAME
 
     # updates display score
     if gamevars.display_score < gamevars.score:
@@ -60,7 +71,7 @@ def update(dt):
             gamevars.is_check_code = False
 
 
-pyglet.clock.schedule_interval(update, 1 / 60)
+pyglet.clock.schedule_interval(update, 1 / 30)
 
 
 # [convenience functions]==============================================================================================
@@ -93,7 +104,6 @@ def on_draw():
 
 
 def on_key_press(symbol, modifiers):
-    print("keys: {} + {}".format(symbol, modifiers))
     if gamevars.game_state == GAME_MODE:
         if symbol == pyglet.window.key.ENTER and window.focus:
             window.unfocus()

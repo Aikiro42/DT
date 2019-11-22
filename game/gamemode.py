@@ -38,7 +38,7 @@ def code_textbox_click_event():
 
 
 codeline_label = Label(gamevars.codeline_str, font_name="Consolas")
-codeline_label.set_coor(window.width // 2, (window.height // 2) - codeline_label.content_height - 100)
+codeline_label.set_coor(window.width // 2, (window.height // 2) - codeline_label.content_height - 30)
 codeline_label.pyglet_coor(window)
 codeline_label.center()
 add_ui_element(GAME_MODE, codeline_label)
@@ -60,7 +60,10 @@ timer_label.font_size = 36
 timer_label.set_anchor(UPPER_RIGHT)
 add_ui_label(GAME_MODE, timer_label)
 
-code_textbox = Textbox(window.batch, width=7 * window.width // 8, font_name='Consolas', pad=10)
+code_textbox = Textbox(window.batch, width=7 * window.width // 8, font_name='Consolas', font_size=11, pad=10)
+code_textbox.set_box_color(0, 0, 0, 50)
+code_textbox.set_text_color(0, 255, 0, 255)
+code_textbox.set_caret_color(0, 255, 0)
 code_textbox.set_coor(window.width // 16, window.height // 2)
 code_textbox.pyglet_coor(window)
 add_ui_textbox(GAME_MODE, code_textbox)
