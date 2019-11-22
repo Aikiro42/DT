@@ -51,7 +51,7 @@ class Rectangle(object):
 
 
 class Textbox(object):
-    def __init__(self, batch, text='', x=0, y=0, width=200, text_color=(0, 0, 0, 255), font_name='Arial'):
+    def __init__(self, batch, text='', x=0, y=0, width=200, text_color=(0, 0, 0, 255), font_name='Arial', pad=2):
 
         self.rendered = False
         self.batch = batch
@@ -71,15 +71,22 @@ class Textbox(object):
         self.layout.y = y
 
         self.rectangle = None
+        self.pad = pad
         self.has_outline = False
 
     def hit(self, cursor_x, cursor_y):
-        ox = self.layout.x - self.anchor_x
-        oy = self.layout.y - self.anchor_y
+        ox = self.layout.x
+        oy = self.layout.y
         if self.rendered and ox < cursor_x < ox + self.layout.width and oy < cursor_y < oy + self.layout.height:
             return True
         else:
             return False
+
+    def get_text(self):
+        return self.document.text
+
+    def set_text(self, new_text):
+        self.document.text = new_text
 
     def set_text_color(self, color: tuple):
         self.document.set_style(0, len(self.document.text),
@@ -89,11 +96,11 @@ class Textbox(object):
     def set_box_color(self, color: list):
         self.draw_rectangle(color=color)
 
-    def draw_rectangle(self, pad=2, color=[200, 200, 220, 255]):
-        self.rectangle = Rectangle(self.layout.x - pad,
-                                   self.layout.y - pad,
-                                   self.layout.x + (self.layout.width) + pad,
-                                   self.layout.y + (self.layout.height) + pad,
+    def draw_rectangle(self, color=[200, 200, 220, 255]):
+        self.rectangle = Rectangle(self.layout.x - self.pad,
+                                   self.layout.y - self.pad,
+                                   self.layout.x + (self.layout.width) + self.pad,
+                                   self.layout.y + (self.layout.height) + self.pad,
                                    self.batch, color=color)
         self.has_outline = True
 
@@ -110,6 +117,10 @@ class Textbox(object):
         if not self.has_outline:
             self.draw_rectangle()
         self.batch.draw()
+        self.rendered = True
+
+    def click_event(self):
+        pass
 
 
 class Image:
@@ -201,6 +212,11 @@ class Window(pyglet.window.Window):
             self.focus.caret.mark = 0
             self.focus.caret.position = len(self.focus.document.text)
 
+    def unfocus(self):
+        self.focus.caret.visible = False
+        self.focus.caret.mark = self.focus.caret.position = 0
+        self.focus = None
+
     def on_text(self, text):
         if self.focus:
             self.focus.caret.on_text(text)
@@ -245,6 +261,11 @@ def add_ui_label(view_str, ui_element):
 def add_ui_textbox(view_str, ui_element):
     ui_elements[view_str].append(ui_element)
     ui_textboxes[view_str].append(ui_element)
+
+
+def reset_ui_textboxes(view_str):
+    for textbox in ui_textboxes[view_str]:
+        textbox.set_text('')
 
 
 def draw_element(ui_element, window_obj: Window):

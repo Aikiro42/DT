@@ -27,8 +27,14 @@ def game_timer_callback(*args, **kwargs):
 
 
 def pause_button_event():
+    window.unfocus()
+    window.clear()
     gamevars.is_pause = True
     gamevars.game_state = PAUSE
+
+
+def code_textbox_click_event():
+    window.focus(code_textbox)
 
 
 codeline_label = Label(gamevars.codeline_str, font_name="Consolas")
@@ -54,10 +60,11 @@ timer_label.font_size = 36
 timer_label.set_anchor(UPPER_RIGHT)
 add_ui_label(GAME_MODE, timer_label)
 
-code_textbox = Textbox(window.batch, width=7*window.width//8, font_name='Consolas')
-code_textbox.set_coor(window.width//16, window.height//2)
+code_textbox = Textbox(window.batch, width=7 * window.width // 8, font_name='Consolas', pad=10)
+code_textbox.set_coor(window.width // 16, window.height // 2)
 code_textbox.pyglet_coor(window)
 add_ui_textbox(GAME_MODE, code_textbox)
+code_textbox.click_event = code_textbox_click_event
 
 for gm_ui_label in ui_labels[GAME_MODE]:
     gm_ui_label.pyglet_coor(window)

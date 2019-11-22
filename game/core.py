@@ -5,16 +5,22 @@ from utils.interface import *
 # Game Variables
 class VarObj:
     def __init__(self):
-        self.codeline_str = "Arcade.alternate(is_the_font, [to, be_used])"
         self.game_state = MAIN_MENU
+
         self.is_game = False
         self.is_pause = False
         self.is_timer = False
         self.is_restart = False
+        self.is_check_code = False
+
         self.score = 0
         self.display_score = 0
-        self.timer = 59
-        self.max_time = 59
+        self.display_increment = 5
+        self.max_time = 1
+        self.timer = self.max_time
+        # self.codeline_str = "Arcade.alternate(is_the_font, [to, be_used])"
+        self.codeline_str = "test"
+        self.player_codeline = ''
 
 
 gamevars = VarObj()

@@ -12,15 +12,18 @@ def quit_button_event():
 
 def restart_button_event():
     # restart gamemode variables
+    reset_ui_textboxes(GAME_MODE)
     gamevars.timer = gamevars.max_time
     gamevars.score = 0
     gamevars.is_pause = False
-    gamevars.game_state = GAME_MODE
     gamevars.is_restart = True
+    window.set_focus(ui_textboxes[GAME_MODE][0])
+    gamevars.game_state = GAME_MODE
 
 
 def resume_button_event():
     gamevars.is_pause = False
+    window.set_focus(ui_textboxes[GAME_MODE][0])
     gamevars.game_state = GAME_MODE
 
 

@@ -35,7 +35,7 @@ def quit_button_event():
 start_button = Button('assets/title/start.png', x=window.width // 2)
 add_ui_button(MAIN_MENU, start_button)
 start_button.click_event = start_button_event
-
+'''
 options_button = Button('assets/title/options.png', x=window.width // 2)
 add_ui_button(MAIN_MENU, options_button)
 
@@ -44,7 +44,7 @@ add_ui_button(MAIN_MENU, instructions_button)
 
 credits_button = Button('assets/title/credits.png', x=window.width // 2)
 add_ui_button(MAIN_MENU, credits_button)
-
+'''
 quit_button = Button('assets/title/quit.png', x=window.width // 2)
 add_ui_button(MAIN_MENU, quit_button)
 quit_button.click_event = quit_button_event
