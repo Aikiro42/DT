@@ -54,7 +54,10 @@ timer_label.font_size = 36
 timer_label.set_anchor(UPPER_RIGHT)
 add_ui_label(GAME_MODE, timer_label)
 
-#declare textbox here
+code_textbox = Textbox(window.batch, width=7*window.width//8, font_name='Consolas')
+code_textbox.set_coor(window.width//16, window.height//2)
+code_textbox.pyglet_coor(window)
+add_ui_textbox(GAME_MODE, code_textbox)
 
 for gm_ui_label in ui_labels[GAME_MODE]:
     gm_ui_label.pyglet_coor(window)

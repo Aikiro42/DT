@@ -43,18 +43,22 @@ class Coordinates:
 class Rectangle(object):
     """Draws a rectangle into a batch."""
 
-    def __init__(self, x1, y1, x2, y2, batch):
+    def __init__(self, x1, y1, x2, y2, batch, color=[200, 200, 220, 255]):
         self.vertex_list = batch.add(4, pyglet.gl.GL_QUADS, None,
                                      ('v2i', [x1, y1, x2, y1, x2, y2, x1, y2]),
-                                     ('c4B', [200, 200, 220, 255] * 4)
+                                     ('c4B', color * 4)
                                      )
 
 
-class TextWidget(object):
-    def __init__(self, text, x, y, width, batch):
+class Textbox(object):
+    def __init__(self, batch, text='', x=0, y=0, width=200, text_color=(0, 0, 0, 255), font_name='Arial'):
+
+        self.rendered = False
+        self.batch = batch
+
         self.document = pyglet.text.document.UnformattedDocument(text)
         self.document.set_style(0, len(self.document.text),
-                                dict(color=(0, 0, 0, 255))
+                                dict(color=text_color, font_name=font_name)
                                 )
         font = self.document.get_font()
         height = font.ascent - font.descent
@@ -66,33 +70,46 @@ class TextWidget(object):
         self.layout.x = x
         self.layout.y = y
 
-        # Rectangular outline
-        pad = 2
-        self.rectangle = Rectangle(x - pad, y - pad,
-                                   x + width + pad, y + height + pad, batch)
+        self.rectangle = None
+        self.has_outline = False
 
-    def hit_test(self, x, y):
-        return (0 < x - self.layout.x < self.layout.width and
-                0 < y - self.layout.y < self.layout.height)
+    def hit(self, cursor_x, cursor_y):
+        ox = self.layout.x - self.anchor_x
+        oy = self.layout.y - self.anchor_y
+        if self.rendered and ox < cursor_x < ox + self.layout.width and oy < cursor_y < oy + self.layout.height:
+            return True
+        else:
+            return False
 
+    def set_text_color(self, color: tuple):
+        self.document.set_style(0, len(self.document.text),
+                                dict(color=color)
+                                )
 
-class Textbox:
-    def __init__(self, window_obj, x=0, y=0, width=200):
-        self.coor = Coordinates(x, y)
-        self.width = width
-        self.window_batch = window_obj.batch  # See Window class in this module
-        self.widget = None
+    def set_box_color(self, color: list):
+        self.draw_rectangle(color=color)
+
+    def draw_rectangle(self, pad=2, color=[200, 200, 220, 255]):
+        self.rectangle = Rectangle(self.layout.x - pad,
+                                   self.layout.y - pad,
+                                   self.layout.x + (self.layout.width) + pad,
+                                   self.layout.y + (self.layout.height) + pad,
+                                   self.batch, color=color)
+        self.has_outline = True
 
     def set_coor(self, x, y):
-        self.coor.x = x
-        self.coor.y = y
+        self.layout.x = x
+        self.layout.y = y
+        self.has_outline = False
 
     def pyglet_coor(self, window_obj):
-        self.coor.pyglet_coor(window_obj)
+        self.layout.y = window_obj.height - self.layout.y
+        self.has_outline = False
 
     def draw(self):
-        self.widget = TextWidget('', self.coor.x, self.coor.y, self.width, self.window_batch)
-        self.window_batch.draw()
+        if not self.has_outline:
+            self.draw_rectangle()
+        self.batch.draw()
 
 
 class Image:
@@ -166,10 +183,35 @@ class Label(pyglet.text.Label):
 
 
 class Window(pyglet.window.Window):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.batch = pyglet.graphics.Batch()
         self.cursor = self.CURSOR_DEFAULT
+        self.focus = None
+
+    def set_focus(self, focus: Textbox):
+        if self.focus:
+            self.focus.caret.visible = False
+            self.focus.caret.mark = self.focus.caret.position = 0
+
+        self.focus = focus
+        if self.focus:
+            self.focus.caret.visible = True
+            self.focus.caret.mark = 0
+            self.focus.caret.position = len(self.focus.document.text)
+
+    def on_text(self, text):
+        if self.focus:
+            self.focus.caret.on_text(text)
+
+    def on_text_motion(self, motion):
+        if self.focus:
+            self.focus.caret.on_text_motion(motion)
+
+    def on_text_motion_select(self, motion):
+        if self.focus:
+            self.focus.caret.on_text_motion_select(motion)
 
 
 ui_elements = {

@@ -23,7 +23,7 @@ gamevars = VarObj()
 
 config = Config(sample_buffers=1, samples=4, depth_size=16, double_buffer=True, mouse_visible=False)
 window = Window(800, 600, config=config)
-glClearColor(0.01, 0.1, 0.1, 0)
+glClearColor(0.01, 0.075, 0.1, 0)
 glEnable(GL_LINE_SMOOTH)
 glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
 glEnable(GL_BLEND)  # transparency

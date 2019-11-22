@@ -1,6 +1,9 @@
 from game.core import *
 from utils.interface import *
 
+# temporary fix
+from game.gamemode import code_textbox
+
 # [main menu elements]=================================================================================================
 
 ui_y_offset = -50
@@ -22,6 +25,7 @@ def game_timer_callback(*args, **kwargs):
 
 def start_button_event():
     gamevars.game_state = GAME_MODE
+    window.set_focus(code_textbox)
 
 
 def quit_button_event():

@@ -65,6 +65,7 @@ def change_cursor(cursor_constant):
 
 def on_draw():
     clear_window()
+    window.batch.draw()
     draw_interface(gamevars.game_state)
 
 
