@@ -13,9 +13,14 @@ class VarObj:
         self.is_restart = False
         self.is_check_code = False
 
+        self.is_textbox_clear = True
+        self.is_code_correct = False
+
         self.bounce_threshold = 10
         self.bounce = 0
         self.bounce_increment = 1
+
+        self.show_error_time = 1  # seconds
 
         self.score = 0
         self.display_score = 0
@@ -33,6 +38,9 @@ gamevars = VarObj()
 
 config = Config(sample_buffers=1, samples=4, depth_size=16, double_buffer=True, mouse_visible=False)
 window = Window(800, 600, config=config)
+
+fps_display = pyglet.window.FPSDisplay(window=window)
+
 glClearColor(0.01, 0.075, 0.1, 0)
 glEnable(GL_LINE_SMOOTH)
 glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)

@@ -1,4 +1,4 @@
-from typing import overload
+from abc import ABCMeta
 
 import pyglet
 import copy
@@ -22,11 +22,6 @@ CENTER_TOP = ('center', 'top')
 CENTER_BOTTOM = ('center', 'bottom')
 CENTER_LEFT = ('left', 'center')
 CENTER_RIGHT = ('right', 'center')
-
-# colors
-RED = (255, 0, 0, 255)
-GREEN = (0, 255, 0, 255)
-WHITE = (255, 255, 255, 255)
 
 
 class Coordinates:
@@ -94,9 +89,6 @@ class Textbox(object):
 
     def set_text(self, new_text):
         self.document.text = new_text
-
-    def strip_text(self):
-        self.document.text = self.document.text.strip()
 
     def set_text_color(self, r, g, b, a=255):
         self.document.set_style(0, len(self.document.text),
@@ -181,7 +173,84 @@ class Button(Image):
         pass
 
 
-class StyLabel:
+class DocumentStyLabel(pyglet.text.layout.TextLayout):
+
+    def __init__(self, document=None,
+                 x=0, y=0, width=None, height=None,
+                 anchor_x='left', anchor_y='baseline',
+                 multiline=False, dpi=None, batch=None, group=None):
+        super(DocumentStyLabel, self).__init__(document,
+                                               width=width, height=height,
+                                               multiline=multiline,
+                                               dpi=dpi, batch=batch, group=group)
+
+        self._x = x
+        self._y = y
+        self._anchor_x = anchor_x
+        self._anchor_y = anchor_y
+        self._update()
+
+    @property
+    def text(self):
+        return self.document.text
+
+    @text.setter
+    def text(self, text):
+        self.document.text = text
+
+    @property
+    def color(self):
+        return self.document.get_style('color')
+
+    @color.setter
+    def color(self, color):
+        self.document.set_style(0, len(self.document.text),
+                                {'color': color})
+
+    @property
+    def font_name(self):
+        return self.document.get_style('font_name')
+
+    @font_name.setter
+    def font_name(self, font_name):
+        self.document.set_style(0, len(self.document.text),
+                                {'font_name': font_name})
+
+    @property
+    def font_size(self):
+        return self.document.get_style('font_size')
+
+    @font_size.setter
+    def font_size(self, font_size):
+        self.document.set_style(0, len(self.document.text),
+                                {'font_size': font_size})
+
+    @property
+    def bold(self):
+        return self.document.get_style('bold')
+
+    @bold.setter
+    def bold(self, bold):
+        self.document.set_style(0, len(self.document.text),
+                                {'bold': bold})
+
+    @property
+    def italic(self):
+        return self.document.get_style('italic')
+
+    @italic.setter
+    def italic(self, italic):
+        self.document.set_style(0, len(self.document.text),
+                                {'italic': italic})
+
+    def get_style(self, name):
+        return self.document.get_style_range(name, 0, len(self.document.text))
+
+    def set_style(self, name, value):
+        self.document.set_style(0, len(self.document.text), {name: value})
+
+
+class StyLabel(DocumentStyLabel):
 
     def __init__(self, text='',
                  font_name=None, font_size=None, bold=False, italic=False,
@@ -190,8 +259,8 @@ class StyLabel:
                  anchor_x='left', anchor_y='baseline',
                  align='left',
                  multiline=False, dpi=None, batch=None, group=None):
-        self.document = pyglet.text.document.UnformattedDocument(text)
-        super(StyLabel, self).__init__(self.document, x, y, width, height,
+        document = pyglet.text.document.UnformattedDocument(text)
+        super(StyLabel, self).__init__(document, x, y, width, height,
                                        anchor_x, anchor_y,
                                        multiline, dpi, batch, group)
 
@@ -205,32 +274,10 @@ class StyLabel:
         })
 
 
-class Label:
+class Label(StyLabel):
 
-    def __init__(self, text='',
-                 font_name=None, font_size=None, bold=False, italic=False,
-                 color=(255, 255, 255, 255),
-                 x=0, y=0, width=None, height=None,
-                 anchor_x='left', anchor_y='baseline',
-                 align='left'):
-        self.document = pyglet.text.document.FormattedDocument(text)
-
-        self.document.set_style(0, len(self.document.text), {
-            'font_name': font_name,
-            'font_size': font_size,
-            'bold': bold,
-            'italic': italic,
-            'color': color,
-            'align': align,
-        })
-
-        self.text = text
-        self.x = x
-        self.y = y
-        self.anchor_x = anchor_x
-        self.anchor_y = anchor_y
-        self.layout = pyglet.text.layout.TextLayout(self.document)
-        self.content_height = self.layout.content_height
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def set_coor(self, x, y):
         self.x = x
@@ -243,37 +290,20 @@ class Label:
         self.anchor_x = 'center'
         self.anchor_y = 'center'
 
+    def set_anchor(self, anchor_x: int, anchor_y: int):
+        self.anchor_x = anchor_x
+        self.anchor_y = anchor_y
+
     def set_anchor(self, anchor_tuple: tuple):
         self.anchor_x = anchor_tuple[0]
         self.anchor_y = anchor_tuple[1]
 
     def decorate(self, char_i: int, char_o: int, attributes: dict):
-        self.layout = None
         self.document.set_style(char_i, char_o, attributes)
-        self.update_layout(False)
 
     # Exclusive to this program
     def color_until(self, char_o: int, r, g, b, a):
         self.decorate(0, char_o, {'color': (r, g, b, a)})
-
-    def color_from(self, char_i: int, r, g, b, a):
-        self.decorate(char_i, len(self.document.text), {'color': (r, g, b, a)})
-
-    def color(self, r, g, b, a):
-        self.decorate(0, len(self.document.text), {'color': (r, g, b, a)})
-
-    def update_layout(self, properties_only=True):
-        if not properties_only:
-            self.layout = pyglet.text.layout.TextLayout(self.document)
-        self.layout.x = self.x
-        self.layout.y = self.y
-        self.layout.anchor_x = self.anchor_x
-        self.layout.anchor_y = self.anchor_y
-
-    def draw(self):
-        self.document.text = self.text
-        self.update_layout(True)
-        self.layout.draw()
 
 
 class Window(pyglet.window.Window):
@@ -302,7 +332,6 @@ class Window(pyglet.window.Window):
 
     def on_text(self, text):
         if self.focus:
-            text = text.replace('\r', '')
             self.focus.caret.on_text(text)
 
     def on_text_motion(self, motion):

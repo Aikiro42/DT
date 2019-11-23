@@ -1,19 +1,10 @@
-import pyglet
+import difflib
 
 
-class Clock:
-    def __init__(self):
-        self.time = 0
-        self.interval = 1
+def get_differing_index(str1, str2):
+    char_compare_list = [i[0] for i in enumerate(difflib.ndiff(str1, str2)) if '-' in i[1] or '+' in i[1]]
+    return char_compare_list[0]
 
-    def callback_function(self, *args, **kwargs):
-        pass
 
-    def set_interval(self, interval: float):
-        self.interval = interval
-
-    def start(self):
-        pyglet.clock.schedule(self.callback_function, self.interval)
-
-    def stop(self):
-        pyglet.clock.unschedule(self.callback_function)
+def update_score_list(new_score):
+    pass

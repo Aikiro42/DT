@@ -1,7 +1,6 @@
-import pyglet
 from pyglet.gl import *
 
-from game.core import window, gamevars
+from game.core import window, fps_display, gamevars
 import game.title
 import game.gamemode
 import game.pause
@@ -13,7 +12,16 @@ from utils.utils import *
 
 # [Notes]==========================================================
 
-# onclick for textbox doesnt work
+# todo: fix text selection
+# todo: make score saving to file possible, sort scores
+# todo: save score with name
+# todo: make code generator (just in case Rain won't be able to do it)
+# todo: options, music, instructions, high score, credits
+# todo: button hover and active states
+# todo: test pause-restart, pause-resume
+# todo: test game over -> try again
+# todo: document code, comment in necessary places
+# todo: fix text selection
 
 # =================================================================
 
@@ -21,9 +29,12 @@ def timer_countdown(dt):
     gamevars.timer -= 1
 
 
+def revert_codeline_color(dt):
+    game.gamemode.codeline_label.color(255, 255, 255, 255)
+
+
 # Checks for changes in the game, basically the game logic
 def update(dt):
-
     if gamevars.game_state == MAIN_MENU:
         game.title.title.coor.y += gamevars.bounce_increment
         gamevars.bounce += gamevars.bounce_increment
@@ -65,13 +76,21 @@ def update(dt):
     if gamevars.is_check_code:
         # If code is correct, add to score and reset timer
         if gamevars.codeline_str == gamevars.player_codeline:
+            game.gamemode.code_textbox.set_text('')
+            game.gamemode.codeline_label.color(255, 255, 255, 255)
             gamevars.score += len(gamevars.codeline_str) * 7 // 2
             gamevars.timer = gamevars.max_time
             # generate new line
             gamevars.is_check_code = False
+            gamevars.is_code_correct = True
+        else:  # if code is incorrect
+            diff_index = get_differing_index(gamevars.codeline_str, gamevars.player_codeline)
+            game.gamemode.codeline_label.color_from(diff_index, 255, 0, 0, 255)
+            pyglet.clock.schedule_once(revert_codeline_color, gamevars.show_error_time)
+            gamevars.is_check_code = False
 
 
-pyglet.clock.schedule_interval(update, 1 / 30)
+pyglet.clock.schedule_interval(update, 1 / 15)
 
 
 # [convenience functions]==============================================================================================
@@ -92,6 +111,15 @@ def change_cursor(cursor_constant):
     window.set_mouse_cursor(window.get_system_mouse_cursor(cursor_constant))
 
 
+'''
+def reset_textbox():
+    window.unfocus()
+    gamevars.player_codeline = game.gamemode.code_textbox.get_text()
+    game.gamemode.code_textbox.set_text('')
+    window.set_focus(game.gamemode.code_textbox)
+'''
+
+
 # =====================================================================================================================
 # [event handling functions]===========================================================================================
 
@@ -101,23 +129,19 @@ def on_draw():
     if gamevars.game_state == GAME_MODE:
         window.batch.draw()
     draw_interface(gamevars.game_state)
+    fps_display.draw()
 
 
 def on_key_press(symbol, modifiers):
     if gamevars.game_state == GAME_MODE:
         if symbol == pyglet.window.key.ENTER and window.focus:
-            window.unfocus()
             gamevars.player_codeline = game.gamemode.code_textbox.get_text()
-            game.gamemode.code_textbox.set_text('')
             gamevars.is_check_code = True
-            window.set_focus(game.gamemode.code_textbox)
 
 
 def on_key_release(symbol, modifiers):
     if symbol == pyglet.window.key.ENTER and window.focus:
-        window.unfocus()
-        game.gamemode.code_textbox.set_text('')
-        window.set_focus(game.gamemode.code_textbox)
+        return True
 
 
 def on_mouse_press(x, y, button, modifiers):
@@ -125,8 +149,8 @@ def on_mouse_press(x, y, button, modifiers):
     change_cursor(window.cursor)
     for interactable in ui_buttons[gamevars.game_state] + ui_textboxes[gamevars.game_state]:
         if interactable.hit(x, y):
-            interactable.click_event()
-            print(interactable)
+            if window.focus is not interactable:
+                interactable.click_event()
 
 
 def on_mouse_drag(x, y, dx, dy, buttons, modifiers):

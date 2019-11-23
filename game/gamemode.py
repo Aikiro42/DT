@@ -34,7 +34,7 @@ def pause_button_event():
 
 
 def code_textbox_click_event():
-    window.focus(code_textbox)
+    window.set_focus(code_textbox)
 
 
 codeline_label = Label(gamevars.codeline_str, font_name="Consolas")
@@ -50,13 +50,11 @@ pause_button.pyglet_coor(window)
 add_ui_button(GAME_MODE, pause_button)
 pause_button.click_event = pause_button_event
 
-score_label = Label(str(gamevars.score), font_name="Arcade Alternate", x=0, y=0)
-score_label.font_size = 24
+score_label = Label(str(gamevars.score), font_name="Arcade Alternate", font_size=24, x=0, y=0)
 score_label.set_anchor(UPPER_LEFT)
 add_ui_label(GAME_MODE, score_label)
 
-timer_label = Label(str(gamevars.timer), font_name="Arcade Alternate", x=window.width, y=0)
-timer_label.font_size = 36
+timer_label = Label(str(gamevars.timer), font_name="Arcade Alternate", font_size=36, x=window.width, y=0)
 timer_label.set_anchor(UPPER_RIGHT)
 add_ui_label(GAME_MODE, timer_label)
 
