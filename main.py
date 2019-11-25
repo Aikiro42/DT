@@ -12,7 +12,6 @@ from utils.utils import *
 
 # [Notes]==========================================================
 
-# todo: fix text selection
 # todo: make score saving to file possible, sort scores
 # todo: save score with name
 # todo: options, music, instructions, high score, credits
@@ -43,6 +42,7 @@ def update(dt):
 
     # Timer update
     if gamevars.game_state == GAME_MODE:
+        game.gamemode.codeline_label.text = gamevars.codeline_str
         game.gamemode.timer_label.text = str(gamevars.timer)
         if not gamevars.is_timer:
             pyglet.clock.schedule_interval(timer_countdown, 1)
@@ -58,7 +58,9 @@ def update(dt):
         pyglet.clock.unschedule(timer_countdown)
         gamevars.is_timer = False
         gamevars.timer = gamevars.max_time
-        game.endgame.endgame_score_label.text = str(gamevars.score)
+        game.endgame.endgame_score_label.text = 'Score: ' + str(gamevars.score)
+        # todo: store score to variable
+        gamevars.score = 0
         gamevars.game_state = ENDGAME
 
     # updates display score
@@ -77,11 +79,17 @@ def update(dt):
         # reset codeline text
         gamevars.codeline_str = gen_code(gamevars.code_depth)
         game.gamemode.codeline_label.text = gamevars.codeline_str
+        # reset timer label
         game.gamemode.timer_label.text = str(gamevars.timer)
 
     # Checks code
     if gamevars.is_check_code:
         # If code is correct, add to score and reset timer
+        if gamevars.player_codeline == 'order_66' and gamevars.admin:
+            # reset code textbox
+            game.gamemode.code_textbox.set_text('')
+            # end timer
+            gamevars.timer = -1
         if gamevars.codeline_str == gamevars.player_codeline:
             # reset code textbox
             game.gamemode.code_textbox.set_text('')
@@ -107,7 +115,7 @@ def update(dt):
             gamevars.is_check_code = False
 
 
-pyglet.clock.schedule_interval(update, 1 / 15)
+pyglet.clock.schedule_interval(update, 1 / 60)
 
 
 # [convenience functions]==============================================================================================
@@ -166,8 +174,9 @@ def on_mouse_press(x, y, button, modifiers):
     change_cursor(window.cursor)
     for interactable in ui_buttons[gamevars.game_state] + ui_textboxes[gamevars.game_state]:
         if interactable.hit(x, y):
-            if window.focus is not interactable:
-                interactable.click_event()
+            interactable.click_event()
+    if window.focus:
+        window.focus.caret.on_mouse_press(x, y, button, modifiers)
 
 
 def on_mouse_drag(x, y, dx, dy, buttons, modifiers):

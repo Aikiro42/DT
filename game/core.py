@@ -6,6 +6,9 @@ from utils.utils import gen_code
 # Game Variables
 class VarObj:
     def __init__(self):
+
+        self.admin = True
+
         self.game_state = MAIN_MENU
 
         self.is_game = False
