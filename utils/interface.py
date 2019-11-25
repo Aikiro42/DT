@@ -354,6 +354,7 @@ def reset_ui_textboxes(view_str):
 
 def draw_element(ui_element, window_obj: Window):
     try:
+        print(window_obj)
         ui_element.draw(window_obj)
     except TypeError:
         ui_element.draw()

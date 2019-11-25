@@ -89,6 +89,8 @@ op_list = [
 ]
 
 
+# num generators
+
 def gen_random_float(min_f, max_f):
     return min_f + (random() * (max_f - min_f))
 
@@ -101,16 +103,18 @@ def get_random_elem(l: list):
     return l[gen_random_int(0, len(l) - 1)]
 
 
+# str generators
+
 def gen_int():
-    return gen_random_int(0, 99)
+    return str(gen_random_int(0, 99))
 
 
 def gen_float():
-    return round(gen_random_float(0, 99), 2)
+    return str(round(gen_random_float(0, 99), 2))
 
 
 def gen_bool():
-    return bool(gen_random_int(0, 1))
+    return str(bool(gen_random_int(0, 1)))
 
 
 def gen_var():

@@ -12,7 +12,6 @@ from utils.utils import *
 
 # [Notes]==========================================================
 
-# todo: game crashes if idle until timeup
 # todo: fix text selection
 # todo: make score saving to file possible, sort scores
 # todo: save score with name
@@ -59,19 +58,25 @@ def update(dt):
         pyglet.clock.unschedule(timer_countdown)
         gamevars.is_timer = False
         gamevars.timer = gamevars.max_time
-        game.endgame.endgame_score_label.text = gamevars.score
+        game.endgame.endgame_score_label.text = str(gamevars.score)
         gamevars.game_state = ENDGAME
 
     # updates display score
-    if gamevars.display_score < gamevars.score:
-        gamevars.display_score += gamevars.display_increment
-        game.gamemode.score_label.text = str(gamevars.display_score)
-    elif gamevars.display_score != gamevars.score:
-        gamevars.display_score = gamevars.score
+    if gamevars.display_score != gamevars.score:
+        gamevars.animate_score_update = True
+    if gamevars.animate_score_update:
+        if gamevars.display_score < gamevars.score:
+            gamevars.display_score += gamevars.display_increment
+        else:
+            gamevars.display_score = gamevars.score
         game.gamemode.score_label.text = str(gamevars.display_score)
 
+    # Try Again clicked
     if gamevars.is_restart:
         gamevars.is_restart = False
+        # reset codeline text
+        gamevars.codeline_str = gen_code(gamevars.code_depth)
+        game.gamemode.codeline_label.text = gamevars.codeline_str
         game.gamemode.timer_label.text = str(gamevars.timer)
 
     # Checks code
@@ -86,13 +91,18 @@ def update(dt):
             gamevars.score += len(gamevars.codeline_str) * 7 // 2
             # increment timer
             gamevars.timer = min(gamevars.max_time, gamevars.timer + gamevars.timer_increment)
-            gamevars.codeline_str = gen_code(3)
+            # set codeline text
+            gamevars.codeline_str = gen_code(gamevars.code_depth)
             game.gamemode.codeline_label.text = gamevars.codeline_str
+            # change flags
             gamevars.is_check_code = False
             gamevars.is_code_correct = True
         else:  # if code is incorrect
             diff_index = get_differing_index(gamevars.codeline_str, gamevars.player_codeline)
-            game.gamemode.codeline_label.color_from(diff_index, 255, 0, 0, 255)
+            if diff_index < len(gamevars.codeline_str):
+                game.gamemode.codeline_label.color_from(diff_index, 255, 0, 0, 255)
+            else:
+                game.gamemode.codeline_label.color(255, 255, 0, 255)
             pyglet.clock.schedule_once(revert_codeline_color, gamevars.show_error_time)
             gamevars.is_check_code = False
 
