@@ -12,10 +12,10 @@ from utils.utils import *
 
 # [Notes]==========================================================
 
+# todo: game crashes if idle until timeup
 # todo: fix text selection
 # todo: make score saving to file possible, sort scores
 # todo: save score with name
-# todo: make code generator (just in case Rain won't be able to do it)
 # todo: options, music, instructions, high score, credits
 # todo: button hover and active states
 # todo: test pause-restart, pause-resume
@@ -35,6 +35,7 @@ def revert_codeline_color(dt):
 
 # Checks for changes in the game, basically the game logic
 def update(dt):
+    # Main Menu Animation
     if gamevars.game_state == MAIN_MENU:
         game.title.title.coor.y += gamevars.bounce_increment
         gamevars.bounce += gamevars.bounce_increment
@@ -58,6 +59,7 @@ def update(dt):
         pyglet.clock.unschedule(timer_countdown)
         gamevars.is_timer = False
         gamevars.timer = gamevars.max_time
+        game.endgame.endgame_score_label.text = gamevars.score
         gamevars.game_state = ENDGAME
 
     # updates display score
@@ -76,11 +78,16 @@ def update(dt):
     if gamevars.is_check_code:
         # If code is correct, add to score and reset timer
         if gamevars.codeline_str == gamevars.player_codeline:
+            # reset code textbox
             game.gamemode.code_textbox.set_text('')
+            # recolor codeline label
             game.gamemode.codeline_label.color(255, 255, 255, 255)
+            # add to score
             gamevars.score += len(gamevars.codeline_str) * 7 // 2
-            gamevars.timer = gamevars.max_time
-            # generate new line
+            # increment timer
+            gamevars.timer = min(gamevars.max_time, gamevars.timer + gamevars.timer_increment)
+            gamevars.codeline_str = gen_code(3)
+            game.gamemode.codeline_label.text = gamevars.codeline_str
             gamevars.is_check_code = False
             gamevars.is_code_correct = True
         else:  # if code is incorrect

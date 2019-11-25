@@ -1,5 +1,6 @@
 from pyglet.gl import *
 from utils.interface import *
+from utils.utils import gen_code
 
 
 # Game Variables
@@ -25,10 +26,11 @@ class VarObj:
         self.score = 0
         self.display_score = 0
         self.display_increment = 5
-        self.max_time = 59
+        self.max_time = 1
+        self.timer_increment = 2
         self.timer = self.max_time
         # self.codeline_str = "Arcade.alternate(is_the_font, [to, be_used])"
-        self.codeline_str = "test"
+        self.codeline_str = gen_code(3)
         self.player_codeline = ''
 
 
