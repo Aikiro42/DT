@@ -33,11 +33,15 @@ endgame_score_label.center()
 endgame_score_label.pyglet_coor(window)
 add_ui_element(ENDGAME, endgame_score_label)
 
-try_again_button = Button('assets/endgame/try_again.png', x=window.width // 2)
+try_again_button = Button('assets/endgame/try_again.png', x=window.width // 2,
+                          image_hover_dir='assets/endgame/try_again_hover.png',
+                          image_active_dir='assets/endgame/try_again_active.png')
 add_ui_button(ENDGAME, try_again_button)
 try_again_button.click_event = try_again_button_event
 
-main_menu_button = Button('assets/endgame/main_menu.png', x=window.width // 2)
+main_menu_button = Button('assets/endgame/main_menu.png', x=window.width // 2,
+                          image_hover_dir='assets/endgame/main_menu_hover.png',
+                          image_active_dir='assets/endgame/main_menu_active.png')
 add_ui_button(ENDGAME, main_menu_button)
 main_menu_button.click_event = main_menu_button_event
 
@@ -47,6 +51,6 @@ for endgame_button in ui_buttons[ENDGAME]:
     endgame_button.set_coor(endgame_button.coor.x, button_order * endgame_button.image.height +
                             time_up_text.image.height +
                             ui_y_offset * 2 +
-                            10 * button_order)
+                            25 * button_order)
     endgame_button.pyglet_coor(window)
     button_order += 1

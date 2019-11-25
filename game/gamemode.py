@@ -43,7 +43,9 @@ codeline_label.pyglet_coor(window)
 codeline_label.center()
 add_ui_element(GAME_MODE, codeline_label)
 
-pause_button = Button('assets/gamemode/pause.png')
+pause_button = Button('assets/gamemode/pause.png',
+                      image_hover_dir='assets/gamemode/pause_hover.png',
+                      image_active_dir='assets/gamemode/pause_active.png')
 pause_button.set_coor(0, window.height)
 pause_button.set_anchor(LOWER_LEFT)
 pause_button.pyglet_coor(window)

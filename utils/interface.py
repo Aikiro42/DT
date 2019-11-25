@@ -1,7 +1,6 @@
-from typing import overload
-
 import pyglet
-import copy
+from copy import copy, deepcopy
+from utils.sounds import *
 
 # CONSTANTS
 # game states
@@ -165,9 +164,38 @@ class Image:
 
 
 class Button(Image):
-    def __init__(self, image_dir, x=0, y=0):
-        super(Button, self).__init__(image_dir, x=x, y=y)
-        self.event_function = lambda _: _
+    def __init__(self, image_dir, x=0, y=0, image_hover_dir=None, image_active_dir=None):
+        super(Button, self).__init__(image_dir, x, y)
+        self.image_default = self.image
+        self.image_hover = None
+        self.image_active = None
+        self.is_default = True
+        if image_hover_dir:
+            self.image_hover = pyglet.resource.image(image_hover_dir)
+        if image_active_dir:
+            self.image_active = pyglet.resource.image(image_active_dir)
+
+    def center(self):
+        """Sets an image's anchor point to its center"""
+        self.image.anchor_x = self.image.width // 2
+        self.image.anchor_y = self.image.height // 2
+        if self.image_hover:
+            self.image_hover.anchor_x = self.image.width // 2
+            self.image_hover.anchor_y = self.image.height // 2
+        if self.image_active:
+            self.image_active.anchor_x = self.image.width // 2
+            self.image_active.anchor_y = self.image.height // 2
+
+    def set_anchor(self, anchor_tuple: tuple):
+        anchors = get_image_anchor(self, anchor_tuple)
+        self.image.anchor_x = anchors[0]
+        self.image.anchor_y = anchors[1]
+        if self.image_hover:
+            self.image_hover.anchor_x = anchors[0]
+            self.image_hover.anchor_y = anchors[1]
+        if self.image_active:
+            self.image_active.anchor_x = anchors[0]
+            self.image_active.anchor_y = anchors[1]
 
     def hit(self, cursor_x, cursor_y):
         ox = self.coor.x - self.image.anchor_x
@@ -179,6 +207,22 @@ class Button(Image):
 
     def click_event(self):
         pass
+
+    def default_event(self):
+        if not self.is_default:
+            self.image = self.image_default
+
+    def hover_event(self):
+        if self.image_hover and self.image != self.image_hover:
+            self.image = self.image_hover
+            self.is_default = False
+            hover_sfx.play()
+
+    def active_event(self):
+        if self.image_active and self.image != self.image_active:
+            self.image = self.image_active
+            self.is_default = False
+            activate_sfx.play()
 
 
 class StyLabel:
@@ -323,9 +367,9 @@ ui_elements = {
     PAUSE: [],
     ENDGAME: []
 }
-ui_buttons = copy.deepcopy(ui_elements)
-ui_labels = copy.deepcopy(ui_elements)
-ui_textboxes = copy.deepcopy(ui_elements)
+ui_buttons = deepcopy(ui_elements)
+ui_labels = deepcopy(ui_elements)
+ui_textboxes = deepcopy(ui_elements)
 
 
 def add_ui_element(view_str, ui_element):
@@ -354,7 +398,6 @@ def reset_ui_textboxes(view_str):
 
 def draw_element(ui_element, window_obj: Window):
     try:
-        print(window_obj)
         ui_element.draw(window_obj)
     except TypeError:
         ui_element.draw()

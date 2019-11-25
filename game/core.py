@@ -2,7 +2,6 @@ from pyglet.gl import *
 from utils.interface import *
 from utils.utils import gen_code
 
-
 # Game Variables
 class VarObj:
     def __init__(self):
@@ -22,7 +21,7 @@ class VarObj:
 
         self.bounce_threshold = 10
         self.bounce = 0
-        self.bounce_increment = 1
+        self.bounce_increment = 0.5
         self.animate_score_update = False
 
         self.show_error_time = 1  # seconds
@@ -44,7 +43,7 @@ gamevars = VarObj()
 # interface initialization, uses stuff from utils.interface, pyglet and pyglet.gl
 
 config = Config(sample_buffers=1, samples=4, depth_size=16, double_buffer=True, mouse_visible=False)
-window = Window(800, 600, config=config)
+window = Window(800, 700, config=config)
 
 fps_display = pyglet.window.FPSDisplay(window=window)
 

@@ -33,15 +33,21 @@ pause_text.center()
 pause_text.pyglet_coor(window)
 add_ui_element(PAUSE, pause_text)
 
-resume_button = Button('assets/pause/resume.png', x=window.width // 2)
+resume_button = Button('assets/pause/resume.png', x=window.width // 2,
+                       image_hover_dir='assets/pause/resume_hover.png',
+                       image_active_dir='assets/pause/resume_active.png')
 add_ui_button(PAUSE, resume_button)
 resume_button.click_event = resume_button_event
 
-restart_button = Button('assets/pause/restart.png', x=window.width // 2)
+restart_button = Button('assets/pause/restart.png', x=window.width // 2,
+                        image_hover_dir='assets/pause/restart_hover.png',
+                        image_active_dir='assets/pause/restart_active.png')
 add_ui_button(PAUSE, restart_button)
 restart_button.click_event = restart_button_event
 
-quit_button = Button('assets/pause/quit.png', x=window.width // 2)
+quit_button = Button('assets/pause/quit.png', x=window.width // 2,
+                     image_hover_dir='assets/pause/quit_hover.png',
+                     image_active_dir='assets/pause/quit_active.png')
 add_ui_button(PAUSE, quit_button)
 quit_button.click_event = quit_button_event
 
@@ -51,6 +57,6 @@ for pause_button in ui_buttons[PAUSE]:
     pause_button.set_coor(pause_button.coor.x, button_order * pause_button.image.height +
                           pause_text.image.height +
                           ui_y_offset * 2 +
-                          10 * button_order)
+                          25 * button_order)
     pause_button.pyglet_coor(window)
     button_order += 1

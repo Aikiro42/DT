@@ -8,18 +8,17 @@ import game.endgame
 
 from utils.interface import *
 from utils.utils import *
-
+from utils.sounds import type_sfx, execute_sfx, error_sfx, game_over_sfx
 
 # [Notes]==========================================================
 
 # todo: make score saving to file possible, sort scores
-# todo: save score with name
-# todo: options, music, instructions, high score, credits
-# todo: button hover and active states
+# todo: options, instructions, high score, credits
 # todo: test pause-restart, pause-resume
 # todo: test game over -> try again
 # todo: document code, comment in necessary places
-# todo: fix text selection
+# todo: save score with name
+
 
 # =================================================================
 
@@ -54,6 +53,8 @@ def update(dt):
 
     # Game Over
     if gamevars.timer < 0 and gamevars.game_state != ENDGAME:
+        # play sound
+        game_over_sfx.play()
         window.unfocus()
         pyglet.clock.unschedule(timer_countdown)
         gamevars.is_timer = False
@@ -84,13 +85,16 @@ def update(dt):
 
     # Checks code
     if gamevars.is_check_code:
-        # If code is correct, add to score and reset timer
+        # end game immediately
         if gamevars.player_codeline == 'order_66' and gamevars.admin:
             # reset code textbox
             game.gamemode.code_textbox.set_text('')
             # end timer
             gamevars.timer = -1
+        # If code is correct, add to score and reset timer
         if gamevars.codeline_str == gamevars.player_codeline:
+            # play sound
+            execute_sfx.play()
             # reset code textbox
             game.gamemode.code_textbox.set_text('')
             # recolor codeline label
@@ -106,6 +110,8 @@ def update(dt):
             gamevars.is_check_code = False
             gamevars.is_code_correct = True
         else:  # if code is incorrect
+            # play sound
+            error_sfx.play()
             diff_index = get_differing_index(gamevars.codeline_str, gamevars.player_codeline)
             if diff_index < len(gamevars.codeline_str):
                 game.gamemode.codeline_label.color_from(diff_index, 255, 0, 0, 255)
@@ -163,6 +169,8 @@ def on_key_press(symbol, modifiers):
             gamevars.player_codeline = game.gamemode.code_textbox.get_text()
             gamevars.is_check_code = True
 
+        type_sfx.play()
+
 
 def on_key_release(symbol, modifiers):
     if symbol == pyglet.window.key.ENTER and window.focus:
@@ -172,11 +180,9 @@ def on_key_release(symbol, modifiers):
 def on_mouse_press(x, y, button, modifiers):
     window.cursor = window.CURSOR_DEFAULT
     change_cursor(window.cursor)
-    for interactable in ui_buttons[gamevars.game_state] + ui_textboxes[gamevars.game_state]:
+    for interactable in ui_buttons[gamevars.game_state]:
         if interactable.hit(x, y):
-            interactable.click_event()
-    if window.focus:
-        window.focus.caret.on_mouse_press(x, y, button, modifiers)
+            interactable.active_event()
 
 
 def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
@@ -188,6 +194,11 @@ def on_mouse_release(x, y, button, modifiers):
     window.cursor = window.CURSOR_DEFAULT
     change_cursor(window.cursor)
     on_mouse_motion(x, y, 0, 0)
+    for interactable in ui_buttons[gamevars.game_state] + ui_textboxes[gamevars.game_state]:
+        if interactable.hit(x, y):
+            interactable.click_event()
+    if window.focus:
+        window.focus.caret.on_mouse_press(x, y, button, modifiers)
 
 
 def on_mouse_motion(x, y, dx, dy):
@@ -195,10 +206,13 @@ def on_mouse_motion(x, y, dx, dy):
         if interactable.hit(x, y):
             if isinstance(interactable, Button):
                 window.cursor = window.CURSOR_HAND
+                interactable.hover_event()
             elif isinstance(interactable, Textbox):
                 window.cursor = window.CURSOR_TEXT
             break
         else:
+            if isinstance(interactable, Button):
+                interactable.default_event()
             window.cursor = window.CURSOR_DEFAULT
     change_cursor(window.cursor)
 

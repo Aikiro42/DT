@@ -1,5 +1,6 @@
 from game.core import *
 from utils.interface import *
+from utils.sounds import *
 
 # temporary fix
 from game.gamemode import code_textbox
@@ -32,7 +33,9 @@ def quit_button_event():
     pyglet.app.exit()
 
 
-start_button = Button('assets/title/start.png', x=window.width // 2)
+start_button = Button('assets/title/start.png', x=window.width // 2,
+                      image_hover_dir='assets/title/start_hover.png',
+                      image_active_dir='assets/title/start_active.png')
 add_ui_button(MAIN_MENU, start_button)
 start_button.click_event = start_button_event
 '''
@@ -45,7 +48,9 @@ add_ui_button(MAIN_MENU, instructions_button)
 credits_button = Button('assets/title/credits.png', x=window.width // 2)
 add_ui_button(MAIN_MENU, credits_button)
 '''
-quit_button = Button('assets/title/quit.png', x=window.width // 2)
+quit_button = Button('assets/title/quit.png', x=window.width // 2,
+                     image_hover_dir='assets/title/quit_hover.png',
+                     image_active_dir='assets/title/quit_active.png')
 add_ui_button(MAIN_MENU, quit_button)
 quit_button.click_event = quit_button_event
 
@@ -53,7 +58,7 @@ ui_button_order = 1  # helps with positioning the main menu buttons
 for main_menu_buttons in ui_buttons[MAIN_MENU]:
     main_menu_buttons.set_coor(main_menu_buttons.coor.x, title.image.height + 100 +
                                (main_menu_buttons.image.height * ui_button_order) +
-                               (5 * ui_button_order) + ui_y_offset)
+                               (25 * ui_button_order) + ui_y_offset)
     main_menu_buttons.center()
     main_menu_buttons.pyglet_coor(window)
     ui_button_order += 1
