@@ -8,7 +8,7 @@ class VarObj:
 
         self.admin = True
 
-        self.game_state = MAIN_MENU
+        self.game_state = uivars.MAIN_MENU
 
         self.is_game = False
         self.is_pause = False
@@ -23,6 +23,7 @@ class VarObj:
         self.bounce = 0
         self.bounce_increment = 0.5
         self.animate_score_update = False
+        self.display_fps = False
 
         self.show_error_time = 1  # seconds
 
@@ -41,14 +42,27 @@ class VarObj:
 gamevars = VarObj()
 
 # interface initialization, uses stuff from utils.interface, pyglet and pyglet.gl
-
+display = pyglet.canvas.get_display()
+screen = display.get_screens()[0]
+window_w = screen.width
+window_h = screen.height
+window_x = screen.width - window_w // 2
+window_y = screen.height - window_h // 2
 config = Config(sample_buffers=1, samples=4, depth_size=16, double_buffer=True, mouse_visible=False)
-window = Window(800, 700, config=config)
+window = Window(window_w, window_h,
+                config=config, resizable=False, fullscreen=False,
+                screen=screen, style=pyglet.window.Window.WINDOW_STYLE_BORDERLESS,
+                caption="DataType - A programmer's game")
+icon1 = pyglet.image.load('assets/icon_16.png')
+icon2 = pyglet.image.load('assets/icon_32.png')
+icon3 = pyglet.image.load('assets/icon.png')
+window.set_location(0, 0)
+window.set_icon(icon1, icon2, icon3)
 
 fps_display = pyglet.window.FPSDisplay(window=window)
 
 glClearColor(0.01, 0.075, 0.1, 0)
-glEnable(GL_LINE_SMOOTH)
+# glEnable(GL_LINE_SMOOTH) # antialiasing
 glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
 glEnable(GL_BLEND)  # transparency
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)  # transparency

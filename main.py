@@ -6,19 +6,21 @@ import game.gamemode
 import game.pause
 import game.endgame
 
-from utils.interface import *
+from utils.interface import uivars, Textbox, Button
 from utils.utils import *
-from utils.sounds import type_sfx, execute_sfx, error_sfx, game_over_sfx
+from utils.sounds import *
+
 
 # [Notes]==========================================================
 
+# todo: fix weak references without going fullscreen
 # todo: make score saving to file possible, sort scores
 # todo: options, instructions, high score, credits
 # todo: test pause-restart, pause-resume
 # todo: test game over -> try again
 # todo: document code, comment in necessary places
+# todo: properly undraw textbox rectangle
 # todo: save score with name
-
 
 # =================================================================
 
@@ -33,14 +35,14 @@ def revert_codeline_color(dt):
 # Checks for changes in the game, basically the game logic
 def update(dt):
     # Main Menu Animation
-    if gamevars.game_state == MAIN_MENU:
+    if gamevars.game_state == uivars.MAIN_MENU:
         game.title.title.coor.y += gamevars.bounce_increment
         gamevars.bounce += gamevars.bounce_increment
         if gamevars.bounce == gamevars.bounce_threshold or gamevars.bounce == 0:
             gamevars.bounce_increment *= -1
 
     # Timer update
-    if gamevars.game_state == GAME_MODE:
+    if gamevars.game_state == uivars.GAME_MODE:
         game.gamemode.codeline_label.text = gamevars.codeline_str
         game.gamemode.timer_label.text = str(gamevars.timer)
         if not gamevars.is_timer:
@@ -52,7 +54,7 @@ def update(dt):
             gamevars.is_timer = False
 
     # Game Over
-    if gamevars.timer < 0 and gamevars.game_state != ENDGAME:
+    if gamevars.timer < 0 and gamevars.game_state != uivars.ENDGAME:
         # play sound
         game_over_sfx.play()
         window.unfocus()
@@ -62,7 +64,7 @@ def update(dt):
         game.endgame.endgame_score_label.text = 'Score: ' + str(gamevars.score)
         # todo: store score to variable
         gamevars.score = 0
-        gamevars.game_state = ENDGAME
+        gamevars.game_state = uivars.ENDGAME
 
     # updates display score
     if gamevars.display_score != gamevars.score:
@@ -129,13 +131,13 @@ pyglet.clock.schedule_interval(update, 1 / 60)
 
 def clear_window():
     window.clear()
-    for element in ui_elements[gamevars.game_state]:
+    for element in uivars.ui_elements[gamevars.game_state]:
         element.rendered = False
 
 
 def draw_interface(g_state):
-    for ui_element in ui_elements[g_state]:
-        draw_element(ui_element, window)
+    for ui_element in uivars.ui_elements[g_state]:
+        uivars.draw_element(ui_element, window)
 
 
 def change_cursor(cursor_constant):
@@ -157,14 +159,20 @@ def reset_textbox():
 
 def on_draw():
     clear_window()
-    if gamevars.game_state == GAME_MODE:
+    if gamevars.game_state == uivars.GAME_MODE:
         window.batch.draw()
     draw_interface(gamevars.game_state)
-    fps_display.draw()
+    if gamevars.display_fps:
+        fps_display.draw()
+
+
+def on_resize(width, height):
+    print('on_resize_called')
+    on_draw()
 
 
 def on_key_press(symbol, modifiers):
-    if gamevars.game_state == GAME_MODE:
+    if gamevars.game_state == uivars.GAME_MODE:
         if symbol == pyglet.window.key.ENTER and window.focus:
             gamevars.player_codeline = game.gamemode.code_textbox.get_text()
             gamevars.is_check_code = True
@@ -180,7 +188,7 @@ def on_key_release(symbol, modifiers):
 def on_mouse_press(x, y, button, modifiers):
     window.cursor = window.CURSOR_DEFAULT
     change_cursor(window.cursor)
-    for interactable in ui_buttons[gamevars.game_state]:
+    for interactable in uivars.ui_buttons[gamevars.game_state]:
         if interactable.hit(x, y):
             interactable.active_event()
 
@@ -194,7 +202,7 @@ def on_mouse_release(x, y, button, modifiers):
     window.cursor = window.CURSOR_DEFAULT
     change_cursor(window.cursor)
     on_mouse_motion(x, y, 0, 0)
-    for interactable in ui_buttons[gamevars.game_state] + ui_textboxes[gamevars.game_state]:
+    for interactable in uivars.ui_buttons[gamevars.game_state] + uivars.ui_textboxes[gamevars.game_state]:
         if interactable.hit(x, y):
             interactable.click_event()
     if window.focus:
@@ -202,7 +210,7 @@ def on_mouse_release(x, y, button, modifiers):
 
 
 def on_mouse_motion(x, y, dx, dy):
-    for interactable in ui_buttons[gamevars.game_state] + ui_textboxes[gamevars.game_state]:
+    for interactable in uivars.ui_buttons[gamevars.game_state] + uivars.ui_textboxes[gamevars.game_state]:
         if interactable.hit(x, y):
             if isinstance(interactable, Button):
                 window.cursor = window.CURSOR_HAND

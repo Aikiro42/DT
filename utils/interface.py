@@ -2,30 +2,92 @@ import pyglet
 from copy import copy, deepcopy
 from utils.sounds import *
 
-# CONSTANTS
-# game states
-MAIN_MENU = 'main-menu'
-GAME_MODE = 'game-mode'
-ENDGAME = 'endgame'  # game over
-OPTIONS = 'options'
-INSTRUCTIONS = 'instructions'
-CREDITS = 'credits'
-PAUSE = 'pause'
 
-# label anchors
-UPPER_RIGHT = ('right', 'top')
-LOWER_RIGHT = ('right', 'bottom')
-UPPER_LEFT = ('left', 'top')
-LOWER_LEFT = ('left', 'bottom')
-CENTER_TOP = ('center', 'top')
-CENTER_BOTTOM = ('center', 'bottom')
-CENTER_LEFT = ('left', 'center')
-CENTER_RIGHT = ('right', 'center')
+class InterfaceVars:
 
-# colors
-RED = (255, 0, 0, 255)
-GREEN = (0, 255, 0, 255)
-WHITE = (255, 255, 255, 255)
+    def __init__(self):
+        # CONSTANTS
+        # game states
+        self.MAIN_MENU = 'main-menu'
+        self.GAME_MODE = 'game-mode'
+        self.ENDGAME = 'endgame'  # game over
+        self.OPTIONS = 'options'
+        self.INSTRUCTIONS = 'instructions'
+        self.CREDITS = 'credits'
+        self.PAUSE = 'pause'
+
+        # label anchors
+        self.UPPER_RIGHT = ('right', 'top')
+        self.LOWER_RIGHT = ('right', 'bottom')
+        self.UPPER_LEFT = ('left', 'top')
+        self.LOWER_LEFT = ('left', 'bottom')
+        self.CENTER_TOP = ('center', 'top')
+        self.CENTER_BOTTOM = ('center', 'bottom')
+        self.CENTER_LEFT = ('left', 'center')
+        self.CENTER_RIGHT = ('right', 'center')
+
+        # colors
+        self.RED = (255, 0, 0, 255)
+        self.GREEN = (0, 255, 0, 255)
+        self.WHITE = (255, 255, 255, 255)
+
+        self.ui_elements = {
+            self.MAIN_MENU: [],
+            self.GAME_MODE: [],
+            self.OPTIONS: [],
+            self.CREDITS: [],
+            self.INSTRUCTIONS: [],
+            self.PAUSE: [],
+            self.ENDGAME: []
+        }
+        self.ui_buttons = deepcopy(self.ui_elements)
+        self.ui_labels = deepcopy(self.ui_elements)
+        self.ui_textboxes = deepcopy(self.ui_elements)
+
+    def add_ui_element(self, view_str, ui_element):
+        self.ui_elements[view_str].append(ui_element)
+
+    def add_ui_button(self, view_str, ui_element):
+        self.ui_elements[view_str].append(ui_element)
+        self.ui_buttons[view_str].append(ui_element)
+
+    def add_ui_label(self, view_str, ui_element):
+        self.ui_elements[view_str].append(ui_element)
+        self.ui_labels[view_str].append(ui_element)
+
+    def add_ui_textbox(self, view_str, ui_element):
+        self.ui_elements[view_str].append(ui_element)
+        self.ui_textboxes[view_str].append(ui_element)
+
+    def reset_ui_textboxes(self, view_str):
+        for textbox in self.ui_textboxes[view_str]:
+            textbox.set_text('')
+
+    def draw_element(self, ui_element, window_obj):
+        try:
+            ui_element.draw(window_obj)
+        except TypeError:
+            ui_element.draw()
+
+    def get_image_anchor(self, image_object, anchor_tuple: tuple) -> tuple:
+        img_anchor = []
+        if anchor_tuple[0] == 'left':
+            img_anchor.append(0)
+        elif anchor_tuple[0] == 'center':
+            img_anchor.append(image_object.image.width // 2)
+        elif anchor_tuple[0] == 'right':
+            img_anchor.append(image_object.image.width)
+        if anchor_tuple[1] == 'top':
+            img_anchor.append(image_object.image.height)
+        elif anchor_tuple[1] == 'center':
+            img_anchor.append(image_object.image.height // 2)
+        elif anchor_tuple[1] == 'bottom':
+            img_anchor.append(0)
+
+        return tuple(img_anchor)
+
+
+uivars = InterfaceVars()
 
 
 class Coordinates:
@@ -154,7 +216,7 @@ class Image:
         self.image.anchor_y = self.image.height // 2
 
     def set_anchor(self, anchor_tuple: tuple):
-        anchors = get_image_anchor(self, anchor_tuple)
+        anchors = uivars.get_image_anchor(self, anchor_tuple)
         self.image.anchor_x = anchors[0]
         self.image.anchor_y = anchors[1]
 
@@ -187,7 +249,7 @@ class Button(Image):
             self.image_active.anchor_y = self.image.height // 2
 
     def set_anchor(self, anchor_tuple: tuple):
-        anchors = get_image_anchor(self, anchor_tuple)
+        anchors = uivars.get_image_anchor(self, anchor_tuple)
         self.image.anchor_x = anchors[0]
         self.image.anchor_y = anchors[1]
         if self.image_hover:
@@ -356,69 +418,6 @@ class Window(pyglet.window.Window):
     def on_text_motion_select(self, motion):
         if self.focus:
             self.focus.caret.on_text_motion_select(motion)
-
-
-ui_elements = {
-    MAIN_MENU: [],
-    GAME_MODE: [],
-    OPTIONS: [],
-    CREDITS: [],
-    INSTRUCTIONS: [],
-    PAUSE: [],
-    ENDGAME: []
-}
-ui_buttons = deepcopy(ui_elements)
-ui_labels = deepcopy(ui_elements)
-ui_textboxes = deepcopy(ui_elements)
-
-
-def add_ui_element(view_str, ui_element):
-    ui_elements[view_str].append(ui_element)
-
-
-def add_ui_button(view_str, ui_element):
-    ui_elements[view_str].append(ui_element)
-    ui_buttons[view_str].append(ui_element)
-
-
-def add_ui_label(view_str, ui_element):
-    ui_elements[view_str].append(ui_element)
-    ui_labels[view_str].append(ui_element)
-
-
-def add_ui_textbox(view_str, ui_element):
-    ui_elements[view_str].append(ui_element)
-    ui_textboxes[view_str].append(ui_element)
-
-
-def reset_ui_textboxes(view_str):
-    for textbox in ui_textboxes[view_str]:
-        textbox.set_text('')
-
-
-def draw_element(ui_element, window_obj: Window):
-    try:
-        ui_element.draw(window_obj)
-    except TypeError:
-        ui_element.draw()
-
-
-def get_image_anchor(image_object: Image, anchor_tuple: tuple) -> tuple:
-    img_anchor = []
-    if anchor_tuple[0] == 'left':
-        img_anchor.append(0)
-    elif anchor_tuple[0] == 'center':
-        img_anchor.append(image_object.image.width // 2)
-    elif anchor_tuple[0] == 'right':
-        img_anchor.append(image_object.image.width)
-    if anchor_tuple[1] == 'top':
-        img_anchor.append(image_object.image.height)
-    elif anchor_tuple[1] == 'center':
-        img_anchor.append(image_object.image.height // 2)
-    elif anchor_tuple[1] == 'bottom':
-        img_anchor.append(0)
-
-    return tuple(img_anchor)
 
 
 try:
