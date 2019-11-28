@@ -25,8 +25,15 @@ def game_timer_callback(*args, **kwargs):
 
 
 def start_button_event():
+    bgm_main_menu.stop()
+    sfx_game_mode_init.play()
+    bgm_game_mode.play()
     gamevars.game_state = uivars.GAME_MODE
     window.set_focus(code_textbox)
+
+
+def options_button_event():
+    gamevars.game_state = uivars.OPTIONS
 
 
 def quit_button_event():
@@ -39,13 +46,20 @@ start_button = Button('assets/title/start.png', x=window.width // 2,
 uivars.add_ui_button(uivars.MAIN_MENU, start_button)
 start_button.click_event = start_button_event
 # '''
-options_button = Button('assets/title/options.png', x=window.width // 2)
+options_button = Button('assets/title/options.png', x=window.width // 2,
+                        image_hover_dir='assets/title/options_hover.png',
+                        image_active_dir='assets/title/options_active.png')
 uivars.add_ui_button(uivars.MAIN_MENU, options_button)
+options_button.click_event = options_button_event
 
-instructions_button = Button('assets/title/instructions.png', x=window.width // 2)
+instructions_button = Button('assets/title/instructions.png', x=window.width // 2,
+                             image_hover_dir='assets/title/instructions_hover.png',
+                             image_active_dir='assets/title/instructions_active.png')
 uivars.add_ui_button(uivars.MAIN_MENU, instructions_button)
 
-credits_button = Button('assets/title/credits.png', x=window.width // 2)
+credits_button = Button('assets/title/credits.png', x=window.width // 2,
+                        image_hover_dir='assets/title/credits_hover.png',
+                        image_active_dir='assets/title/credits_active.png')
 uivars.add_ui_button(uivars.MAIN_MENU, credits_button)
 # '''
 quit_button = Button('assets/title/quit.png', x=window.width // 2,

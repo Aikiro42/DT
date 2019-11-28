@@ -1,27 +1,38 @@
 from game.core import *
 from utils.interface import *
+from utils.sounds import bgm_game_mode, sfx_game_mode_init, sfx_game_over_m
 
 ui_y_offset = 100
 
 
 def quit_button_event():
+    bgm_game_mode.stop()
+    bgm_main_menu.play()
     gamevars.is_game = False
     gamevars.is_pause = False
+    sfx_game_over_m.play()
     gamevars.game_state = uivars.MAIN_MENU
 
 
 def restart_button_event():
-    # restart gamemode variables
+    # reset gamemode music
+    bgm_game_mode.stop()
+    bgm_game_mode.play()
+    # reset gamemode textboxes
     uivars.reset_ui_textboxes(uivars.GAME_MODE)
+    # reset variables
     gamevars.timer = gamevars.max_time
     gamevars.score = 0
+    gamevars.codeline_str = gen_code(gamevars.code_depth)
     gamevars.is_pause = False
     gamevars.is_restart = True
     window.set_focus(uivars.ui_textboxes[uivars.GAME_MODE][0])
+    sfx_game_mode_init.play()
     gamevars.game_state = uivars.GAME_MODE
 
 
 def resume_button_event():
+    bgm_game_mode.play()
     gamevars.is_pause = False
     window.set_focus(uivars.ui_textboxes[uivars.GAME_MODE][0])
     gamevars.game_state = uivars.GAME_MODE

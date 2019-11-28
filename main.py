@@ -5,6 +5,7 @@ import game.title
 import game.gamemode
 import game.pause
 import game.endgame
+import game.options
 
 from utils.interface import uivars, Textbox, Button
 from utils.utils import *
@@ -13,6 +14,7 @@ from utils.sounds import *
 
 # [Notes]==========================================================
 
+# todo: FIX LAG PROBLEM
 # todo: fix weak references without going fullscreen
 # todo: make score saving to file possible, sort scores
 # todo: options, instructions, high score, credits
@@ -24,8 +26,24 @@ from utils.sounds import *
 
 # =================================================================
 
+def check_for_endgame():
+    if gamevars.timer < 0 and gamevars.game_state != uivars.ENDGAME:
+        sfx_game_over.play()
+        sfx_game_over_m.play()
+        bgm_game_mode.stop()
+        window.unfocus()
+        pyglet.clock.unschedule(timer_countdown)
+        gamevars.is_timer = False
+        gamevars.timer = gamevars.max_time
+        game.endgame.endgame_score_label.text = 'Score: ' + str(gamevars.score)
+        update_score_list(gamevars.score)  # stores score to file
+        gamevars.display_score = gamevars.score = 0
+        gamevars.game_state = uivars.ENDGAME
+
+
 def timer_countdown(dt):
     gamevars.timer -= 1
+    check_for_endgame()
 
 
 def revert_codeline_color(dt):
@@ -36,12 +54,13 @@ def revert_codeline_color(dt):
 def update(dt):
     # Main Menu Animation
     if gamevars.game_state == uivars.MAIN_MENU:
+        # animate title
         game.title.title.coor.y += gamevars.bounce_increment
         gamevars.bounce += gamevars.bounce_increment
         if gamevars.bounce == gamevars.bounce_threshold or gamevars.bounce == 0:
             gamevars.bounce_increment *= -1
 
-    # Timer update
+    # Schedule timer update if game state is game mode
     if gamevars.game_state == uivars.GAME_MODE:
         game.gamemode.codeline_label.text = gamevars.codeline_str
         game.gamemode.timer_label.text = str(gamevars.timer)
@@ -53,20 +72,7 @@ def update(dt):
             pyglet.clock.unschedule(timer_countdown)
             gamevars.is_timer = False
 
-    # Game Over
-    if gamevars.timer < 0 and gamevars.game_state != uivars.ENDGAME:
-        # play sound
-        game_over_sfx.play()
-        window.unfocus()
-        pyglet.clock.unschedule(timer_countdown)
-        gamevars.is_timer = False
-        gamevars.timer = gamevars.max_time
-        game.endgame.endgame_score_label.text = 'Score: ' + str(gamevars.score)
-        # todo: store score to variable
-        gamevars.score = 0
-        gamevars.game_state = uivars.ENDGAME
-
-    # updates display score
+    # update display score animation
     if gamevars.display_score != gamevars.score:
         gamevars.animate_score_update = True
     if gamevars.animate_score_update:
@@ -80,50 +86,13 @@ def update(dt):
     if gamevars.is_restart:
         gamevars.is_restart = False
         # reset codeline text
-        gamevars.codeline_str = gen_code(gamevars.code_depth)
         game.gamemode.codeline_label.text = gamevars.codeline_str
         # reset timer label
         game.gamemode.timer_label.text = str(gamevars.timer)
 
-    # Checks code
-    if gamevars.is_check_code:
-        # end game immediately
-        if gamevars.player_codeline == 'order_66' and gamevars.admin:
-            # reset code textbox
-            game.gamemode.code_textbox.set_text('')
-            # end timer
-            gamevars.timer = -1
-        # If code is correct, add to score and reset timer
-        if gamevars.codeline_str == gamevars.player_codeline:
-            # play sound
-            execute_sfx.play()
-            # reset code textbox
-            game.gamemode.code_textbox.set_text('')
-            # recolor codeline label
-            game.gamemode.codeline_label.color(255, 255, 255, 255)
-            # add to score
-            gamevars.score += len(gamevars.codeline_str) * 7 // 2
-            # increment timer
-            gamevars.timer = min(gamevars.max_time, gamevars.timer + gamevars.timer_increment)
-            # set codeline text
-            gamevars.codeline_str = gen_code(gamevars.code_depth)
-            game.gamemode.codeline_label.text = gamevars.codeline_str
-            # change flags
-            gamevars.is_check_code = False
-            gamevars.is_code_correct = True
-        else:  # if code is incorrect
-            # play sound
-            error_sfx.play()
-            diff_index = get_differing_index(gamevars.codeline_str, gamevars.player_codeline)
-            if diff_index < len(gamevars.codeline_str):
-                game.gamemode.codeline_label.color_from(diff_index, 255, 0, 0, 255)
-            else:
-                game.gamemode.codeline_label.color(255, 255, 0, 255)
-            pyglet.clock.schedule_once(revert_codeline_color, gamevars.show_error_time)
-            gamevars.is_check_code = False
 
-
-pyglet.clock.schedule_interval(update, 1 / 60)
+pyglet.clock.schedule_interval(update, 1 / 30)
+bgm_main_menu.play()
 
 
 # [convenience functions]==============================================================================================
@@ -136,6 +105,8 @@ def clear_window():
 
 
 def draw_interface(g_state):
+    for background_elem in uivars.ui_backgrounds[g_state]:
+        uivars.draw_element(background_elem, window)
     for ui_element in uivars.ui_elements[g_state]:
         uivars.draw_element(ui_element, window)
 
@@ -173,11 +144,43 @@ def on_resize(width, height):
 
 def on_key_press(symbol, modifiers):
     if gamevars.game_state == uivars.GAME_MODE:
+        # check code when enter is pressed
         if symbol == pyglet.window.key.ENTER and window.focus:
-            gamevars.player_codeline = game.gamemode.code_textbox.get_text()
-            gamevars.is_check_code = True
-
-        type_sfx.play()
+            player_codeline = game.gamemode.code_textbox.get_text()
+            # if code matches kill command
+            if player_codeline == gamevars.kill_command and gamevars.admin:
+                # end timer
+                gamevars.timer = -1
+                check_for_endgame()
+            # If code is correct, add to score and reset timer
+            elif gamevars.codeline_str == player_codeline or (player_codeline == gamevars.konami):
+                # play sound
+                sfx_correct.play()
+                # reset code textbox
+                game.gamemode.code_textbox.set_text('')
+                # recolor codeline label
+                game.gamemode.codeline_label.color(255, 255, 255, 255)
+                # add to score
+                gamevars.score += len(gamevars.codeline_str) * 7 // 2
+                # increment timer
+                gamevars.timer = min(gamevars.max_time, gamevars.timer + gamevars.timer_increment)
+                # set codeline text
+                gamevars.codeline_str = gen_code(gamevars.code_depth)
+                game.gamemode.codeline_label.text = gamevars.codeline_str
+                # change flags
+            else:  # if code is incorrect
+                # play sound
+                sfx_error.play()
+                # recolor code appropriately
+                diff_index = get_differing_index(gamevars.codeline_str, player_codeline)
+                if diff_index < len(gamevars.codeline_str):
+                    game.gamemode.codeline_label.color_from(diff_index, 255, 0, 0, 255)
+                else:
+                    game.gamemode.codeline_label.color(255, 255, 0, 255)
+                # revert codeline color after show error time specified
+                pyglet.clock.schedule_once(revert_codeline_color, gamevars.show_error_time)
+        # play sfx when typing
+        sfx_type.play()
 
 
 def on_key_release(symbol, modifiers):

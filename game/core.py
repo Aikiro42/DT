@@ -2,13 +2,17 @@ from pyglet.gl import *
 from utils.interface import *
 from utils.utils import gen_code
 
+
 # Game Variables
 class VarObj:
     def __init__(self):
-
+        self.debug = False
         self.admin = True
+        self.kill_command = 'imperial_orders[66]'
+        self.konami = 'hi'
 
         self.game_state = uivars.MAIN_MENU
+        self.is_music_playing = False
 
         self.is_game = False
         self.is_pause = False
@@ -41,13 +45,20 @@ class VarObj:
 
 gamevars = VarObj()
 
+
 # interface initialization, uses stuff from utils.interface, pyglet and pyglet.gl
 display = pyglet.canvas.get_display()
 screen = display.get_screens()[0]
 window_w = screen.width
 window_h = screen.height
+
+if gamevars.debug:
+    window_w = 800
+    window_h = 600
+
 window_x = screen.width - window_w // 2
 window_y = screen.height - window_h // 2
+
 config = Config(sample_buffers=1, samples=4, depth_size=16, double_buffer=True, mouse_visible=False)
 window = Window(window_w, window_h,
                 config=config, resizable=False, fullscreen=False,

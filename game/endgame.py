@@ -1,10 +1,12 @@
 from game.core import *
 from utils.interface import *
+from utils.sounds import sfx_game_mode_init, bgm_main_menu, bgm_game_mode
 
 ui_y_offset = 100
 
 
 def main_menu_button_event():
+    bgm_main_menu.play()
     gamevars.is_game = False
     gamevars.is_pause = False
     gamevars.game_state = uivars.MAIN_MENU
@@ -18,6 +20,8 @@ def try_again_button_event():
     gamevars.is_pause = False
     gamevars.is_restart = True
     window.set_focus(uivars.ui_textboxes[uivars.GAME_MODE][0])
+    sfx_game_mode_init.play()
+    bgm_game_mode.play()
     gamevars.game_state = uivars.GAME_MODE
 
 

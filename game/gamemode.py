@@ -1,5 +1,6 @@
 from game.core import *
 from utils.interface import *
+from utils.sounds import bgm_game_mode, sfx_pause
 
 
 def update_timer_label():
@@ -27,6 +28,8 @@ def game_timer_callback(*args, **kwargs):
 
 
 def pause_button_event():
+    bgm_game_mode.pause()
+    sfx_pause.play()
     window.unfocus()
     window.clear()
     gamevars.is_pause = True

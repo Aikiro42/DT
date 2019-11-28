@@ -25,6 +25,7 @@ class InterfaceVars:
         self.CENTER_BOTTOM = ('center', 'bottom')
         self.CENTER_LEFT = ('left', 'center')
         self.CENTER_RIGHT = ('right', 'center')
+        self.CENTER = ('center', 'center')
 
         # colors
         self.RED = (255, 0, 0, 255)
@@ -43,6 +44,7 @@ class InterfaceVars:
         self.ui_buttons = deepcopy(self.ui_elements)
         self.ui_labels = deepcopy(self.ui_elements)
         self.ui_textboxes = deepcopy(self.ui_elements)
+        self.ui_backgrounds = deepcopy(self.ui_elements)
 
     def add_ui_element(self, view_str, ui_element):
         self.ui_elements[view_str].append(ui_element)
@@ -58,6 +60,9 @@ class InterfaceVars:
     def add_ui_textbox(self, view_str, ui_element):
         self.ui_elements[view_str].append(ui_element)
         self.ui_textboxes[view_str].append(ui_element)
+
+    def add_ui_background(self, view_str, ui_element):
+        self.ui_backgrounds[view_str].append(ui_element)
 
     def reset_ui_textboxes(self, view_str):
         for textbox in self.ui_textboxes[view_str]:
@@ -225,6 +230,13 @@ class Image:
         self.rendered = True
 
 
+class Background(Image):
+    def __init__(self, background_dir, window_obj):
+        super(Background, self).__init__(background_dir, x=window_obj // 2, y=window_obj // 2)
+        self.set_anchor(uivars.CENTER)
+        self.pyglet_coor(window_obj)
+
+
 class Button(Image):
     def __init__(self, image_dir, x=0, y=0, image_hover_dir=None, image_active_dir=None):
         super(Button, self).__init__(image_dir, x, y)
@@ -278,13 +290,13 @@ class Button(Image):
         if self.image_hover and self.image != self.image_hover:
             self.image = self.image_hover
             self.is_default = False
-            hover_sfx.play()
+            sfx_hover.play()
 
     def active_event(self):
         if self.image_active and self.image != self.image_active:
             self.image = self.image_active
             self.is_default = False
-            activate_sfx.play()
+            sfx_click.play()
 
 
 class StyLabel:
@@ -316,7 +328,7 @@ class Label:
     def __init__(self, text='',
                  font_name=None, font_size=None, bold=False, italic=False,
                  color=(255, 255, 255, 255),
-                 x=0, y=0, width=None, height=None,
+                 x=0, y=0, width=None, height=None, batch=None,
                  anchor_x='left', anchor_y='baseline',
                  align='left'):
         self.document = pyglet.text.document.FormattedDocument(text)
@@ -335,8 +347,9 @@ class Label:
         self.y = y
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
-        self.layout = pyglet.text.layout.TextLayout(self.document)
+        self.layout = pyglet.text.layout.TextLayout(self.document, batch=batch)
         self.content_height = self.layout.content_height
+        self.rendered = False
 
     def set_coor(self, x, y):
         self.x = x
@@ -380,6 +393,7 @@ class Label:
         self.document.text = self.text
         self.update_layout(True)
         self.layout.draw()
+        self.rendered = True
 
 
 class Window(pyglet.window.Window):

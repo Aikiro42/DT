@@ -8,8 +8,27 @@ def get_differing_index(str1, str2):
     return char_compare_list[0]
 
 
+"""
+code below obtained from:
+https://stackoverflow.com/questions/46057732/open-a-text-file-sort-the-text-file-and-then-save-it-using-python
+"""
+
+
 def update_score_list(new_score):
-    pass
+    try:
+        open('scores', 'r')
+    except FileNotFoundError:
+        x = open('scores', 'w')
+        x.close()
+
+    with open('scores', 'r') as f:
+        lines = f.readlines()
+    numbers = [int(e.strip()) for e in lines] + [new_score]
+    numbers.sort(key=lambda scre: -scre)
+
+    with open('scores', 'w') as f:  # open sorted.txt for writing 'w'
+        # join numbers with newline '\n' then write them on 'sorted.txt'
+        f.write('\n'.join(str(n) for n in numbers))
 
 
 # [Code Generator]=========================================================================================
