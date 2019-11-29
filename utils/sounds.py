@@ -63,3 +63,4 @@ sfx_options_click = Sound('assets/sfx/sfx_options_click.wav')
 
 bgm_main_menu = Music('assets/bgm/bgm_main_menu.wav', loop=True)
 bgm_game_mode = Music('assets/bgm/bgm_game_mode.wav', loop=True)
+bgm_rawstarr = Music('assets/bgm/bgm_rawstarr.wav', loop=True)

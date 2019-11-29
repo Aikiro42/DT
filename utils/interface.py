@@ -239,6 +239,29 @@ class Background(Image):
         self.pyglet_coor(window_obj)
 
 
+class AnimatedBackground:
+    def __init__(self, gif_dir, window_obj):
+        self.animation = pyglet.image.load_animation(gif_dir)
+        self.sprite = pyglet.sprite.Sprite(self.animation)
+        self.fill_dimensions(window_obj)
+
+    def set_coor(self, x, y):
+        self.sprite.x = x
+        self.sprite.y = y
+
+    def set_dimensions(self, width, height):
+        height_scale = height / self.sprite.height
+        width_scale = width / self.sprite.width
+        self.sprite.scale_x = width_scale
+        self.sprite.scale_y = height_scale
+
+    def draw(self):
+        self.sprite.draw()
+
+    def fill_dimensions(self, window_obj):
+        self.set_dimensions(window_obj.width, window_obj.height)
+
+
 class Button(Image):
     def __init__(self, image_dir, x=0, y=0, image_hover_dir=None, image_active_dir=None):
         super(Button, self).__init__(image_dir, x, y)

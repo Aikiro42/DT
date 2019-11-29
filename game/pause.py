@@ -38,6 +38,9 @@ def resume_button_event():
     gamevars.game_state = uivars.GAME_MODE
 
 
+pause_bg = AnimatedBackground('assets/pause_bg.gif', window)
+uivars.add_ui_background(uivars.PAUSE, pause_bg)
+
 pause_text = Image('assets/pause/pause.png', x=window.width // 2)
 pause_text.set_coor(pause_text.coor.x, pause_text.image.height + ui_y_offset)
 pause_text.center()

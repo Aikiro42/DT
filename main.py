@@ -8,10 +8,9 @@ import game.endgame
 import game.options
 import game.highscores
 
-from utils.interface import uivars, Textbox, Button, ToggledButton
+from utils.interface import uivars, Textbox, Button, ToggledButton, Image
 from utils.utils import *
 from utils.sounds import *
-
 
 # [Notes]==========================================================
 
@@ -26,16 +25,33 @@ from utils.sounds import *
 
 # =================================================================
 
+# Easter Eggs =================================================================
+
+edgar_pic = Image('assets/edgar.jpg', x=window.width // 2, y=window.height // 2)
+edgar_pic.center()
+edgar_pic.pyglet_coor(window)
+edgar_draw = False
+
+
+def dismiss_class(dt):
+    global edgar_draw
+    edgar_draw = False
+
+
+# =============================================================================
+
 def check_for_endgame():
     if gamevars.timer < 0 and gamevars.game_state != uivars.ENDGAME:
         sfx_game_over.play()
         sfx_game_over_m.play()
         bgm_game_mode.stop()
+        bgm_rawstarr.stop()
         game.gamemode.code_textbox.set_text('')
         game.gamemode.timer_label.color(255, 255, 255, 255)
         window.unfocus()
         pyglet.clock.unschedule(timer_countdown)
         gamevars.is_timer = False
+        gamevars.is_rawstarr = False
         gamevars.timer = gamevars.max_time
         game.endgame.endgame_score_label.text = 'Score: ' + str(gamevars.score)
         update_score_list(gamevars.score)  # stores score to file
@@ -44,7 +60,8 @@ def check_for_endgame():
 
 
 def timer_countdown(dt):
-    gamevars.timer -= 1
+    if not gamevars.is_rawstarr:
+        gamevars.timer -= 1
     if gamevars.timer < gamevars.timer_redline:
         game.gamemode.timer_label.color(255, 100, 100, 255)
         sfx_timer.play()
@@ -96,7 +113,7 @@ def update(dt):
         game.gamemode.timer_label.text = str(gamevars.timer)
 
 
-pyglet.clock.schedule_interval(update, 1 / 30)
+pyglet.clock.schedule_interval(update, 1 / 60)
 bgm_main_menu.play()
 
 
@@ -140,6 +157,8 @@ def on_draw():
     draw_interface(gamevars.game_state)
     if gamevars.display_fps:
         fps_display.draw()
+    if edgar_draw:
+        edgar_pic.draw()
 
 
 def on_resize(width, height):
@@ -158,7 +177,18 @@ def on_key_press(symbol, modifiers):
                 gamevars.timer = -1
                 check_for_endgame()
             # If code is correct, add to score and reset timer
-            elif player_codeline in gamevars.eggnames:
+            elif player_codeline == gamevars.edgar:  # Edgar easter egg
+                game.gamemode.code_textbox.set_text('')
+                global edgar_draw
+                edgar_draw = True
+                pyglet.clock.schedule_once(dismiss_class, 1)
+            elif player_codeline == gamevars.rawstarr:
+                game.gamemode.code_textbox.set_text('')
+                bgm_game_mode.stop()
+                bgm_rawstarr.play()
+                gamevars.is_rawstarr = True
+                pass
+            elif player_codeline in gamevars.eggnames:  # Dev team name easter eggs
                 # play sound
                 sfx_correct.play()
                 # reset code textbox
@@ -167,9 +197,7 @@ def on_key_press(symbol, modifiers):
                 game.gamemode.codeline_label.color(255, 255, 255, 255)
                 # add to score
                 gamevars.score += 100
-                # increment timer
-                # change flags
-            elif gamevars.codeline_str == player_codeline or (player_codeline == gamevars.konami):
+            elif gamevars.codeline_str == player_codeline or (player_codeline == gamevars.konami):  # code correct
                 # play sound
                 sfx_correct.play()
                 # reset code textbox
@@ -177,7 +205,7 @@ def on_key_press(symbol, modifiers):
                 # recolor codeline label
                 game.gamemode.codeline_label.color(255, 255, 255, 255)
                 # add to score
-                gamevars.score += len(gamevars.codeline_str) * 7 // 2
+                gamevars.score += gamevars.increment_score()
                 # increment timer
                 gamevars.timer = min(gamevars.max_time, gamevars.timer + gamevars.timer_increment)
                 # change timer color
@@ -188,6 +216,9 @@ def on_key_press(symbol, modifiers):
                 game.gamemode.codeline_label.text = gamevars.codeline_str
                 # change flags
             else:  # if code is incorrect
+                if gamevars.is_rawstarr:
+                    gamevars.timer = -1
+                    check_for_endgame()
                 # play sound
                 sfx_error.play()
                 # recolor code appropriately

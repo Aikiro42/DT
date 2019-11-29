@@ -7,7 +7,7 @@ from game.gamemode import code_textbox
 
 # [main menu elements]=================================================================================================
 
-ui_y_offset = 10
+ui_y_offset = window.height // 100
 
 title = Image('assets/title/title.png', x=window.width // 2)
 title.set_coor(title.coor.x, title.image.height + ui_y_offset)
@@ -42,6 +42,9 @@ def quit_button_event():
     pyglet.app.exit()
 
 
+title_bg = AnimatedBackground('assets/animated_bg_07.gif', window)
+uivars.add_ui_background(uivars.MAIN_MENU, title_bg)
+
 start_button = Button('assets/title/start.png', x=window.width // 2,
                       image_hover_dir='assets/title/start_hover.png',
                       image_active_dir='assets/title/start_active.png')
@@ -53,7 +56,6 @@ options_button = Button('assets/title/options.png', x=window.width // 2,
                         image_active_dir='assets/title/options_active.png')
 uivars.add_ui_button(uivars.MAIN_MENU, options_button)
 options_button.click_event = options_button_event
-
 
 '''
 instructions_button = Button('assets/title/instructions.png', x=window.width // 2,

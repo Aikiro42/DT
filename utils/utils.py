@@ -46,6 +46,7 @@ LIST_ACCESS = 5
 PARENTHESES = 6
 ELEMENT = 7
 LIST = 8
+BRACES = 9
 
 # I recommend that you add more words to this array
 # Preferably technical terms like "Abstraction" or "Parser" or hackerman stuff idk lol
@@ -191,7 +192,8 @@ ptr_vals = [
 ]
 
 
-def gen_code(depth: int, is_num=False, allow_ass=True, allow_elem=True, is_dot=False, allow_list=True):
+def gen_code(depth: int, is_num=False, allow_ass=True, allow_elem=True, is_dot=False, allow_list=True,
+             enclosing_glyphs=True):
     if depth <= 1:
         # Return a value (int, float, bool) or a variable ()
         if is_dot:
@@ -227,9 +229,13 @@ def gen_code(depth: int, is_num=False, allow_ass=True, allow_elem=True, is_dot=F
                     gen_var(),
                     gen_code(depth - 1, is_num=True, allow_ass=False, allow_elem=False, allow_list=False)
                 )
-            elif x == PARENTHESES and not is_dot:
+            elif x == PARENTHESES and not is_dot and enclosing_glyphs:
                 return '({})'.format(
-                    gen_code(depth - 1, is_num=is_num, allow_ass=False)
+                    gen_code(depth - 1, is_num=is_num, allow_ass=False, enclosing_glyphs=False)
+                )
+            elif x == BRACES and not is_dot and enclosing_glyphs:
+                return '{{}}'.format(
+                    gen_code(depth - 1, is_num=is_num, allow_ass=False, enclosing_glyphs=False)
                 )
             elif x == LIST and allow_list and not is_dot:
                 return '[{}]'.format(

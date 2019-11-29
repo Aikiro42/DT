@@ -25,6 +25,9 @@ def try_again_button_event():
     gamevars.game_state = uivars.GAME_MODE
 
 
+endgame_bg = AnimatedBackground('assets/endgame_bg.gif', window)
+uivars.add_ui_background(uivars.ENDGAME, endgame_bg)
+
 time_up_text = Image('assets/endgame/time_up.png', x=window.width // 2)
 time_up_text.set_coor(time_up_text.coor.x, time_up_text.image.height + ui_y_offset)
 time_up_text.center()

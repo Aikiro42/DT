@@ -8,9 +8,12 @@ class VarObj:
     def __init__(self):
         self.debug = False
         self.admin = True
-        self.kill_command = "game.end()"
+        self.kill_command = "order_66.execute()"
         self.konami = 'hi'
         self.eggnames = ['luis', 'rain', 'jackie', 'enrico']
+        self.edgar = 'CS11.set_grade(1)'
+        self.rawstarr = 'schedule_until(rawstarr, end=self.death)'
+        self.is_rawstarr = False
 
         self.game_state = uivars.MAIN_MENU
         self.is_music_playing = False
@@ -35,14 +38,17 @@ class VarObj:
         self.score = 0
         self.display_score = 0
         self.display_increment = 5
-        self.max_time = 59
-        self.timer_increment = 3
+        self.max_time = 150
+        self.timer_increment = self.max_time // 20
         self.timer = self.max_time
         self.timer_redline = 10
         # self.codeline_str = "Arcade.alternate(is_the_font, [to, be_used])"
-        self.code_depth = (self.max_time // 20) + 1
+        self.code_depth = min((self.max_time // 20) + 1, 7)
         self.codeline_str = gen_code(self.code_depth)
         self.player_codeline = ''
+
+    def increment_score(self):
+        return len(self.codeline_str) * 10 + self.timer*2
 
 
 gamevars = VarObj()
@@ -79,3 +85,4 @@ glClearColor(0.01, 0.075, 0.1, 0)
 glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
 glEnable(GL_BLEND)  # transparency
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)  # transparency
+# glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)

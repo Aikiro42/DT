@@ -40,6 +40,9 @@ def code_textbox_click_event():
     window.set_focus(code_textbox)
 
 
+gamemode_bg = AnimatedBackground('assets/gamemode_anim_bg_01.gif', window)
+uivars.add_ui_background(uivars.GAME_MODE, gamemode_bg)
+
 codeline_label = Label(gamevars.codeline_str, font_name="Consolas")
 codeline_label.set_coor(window.width // 2, (window.height // 2) - codeline_label.content_height - 30)
 codeline_label.pyglet_coor(window)
@@ -64,7 +67,7 @@ timer_label.set_anchor(uivars.UPPER_RIGHT)
 uivars.add_ui_label(uivars.GAME_MODE, timer_label)
 
 code_textbox = Textbox(window.batch, width=7 * window.width // 8, font_name='Consolas', font_size=11, pad=10)
-code_textbox.set_box_color(0, 0, 0, 50)
+code_textbox.set_box_color(25, 25, 25, 200)
 code_textbox.set_text_color(0, 255, 0, 255)
 code_textbox.set_caret_color(0, 255, 0)
 code_textbox.set_coor(window.width // 16, window.height // 2)
