@@ -195,7 +195,7 @@ ptr_vals = [
 def gen_code(depth: int, is_num=False, allow_ass=True, allow_elem=True, is_dot=False, allow_list=True,
              enclosing_glyphs=True):
     if depth <= 1:
-        # Return a value (int, float, bool) or a variable ()
+        # Return a value (int, float, bool) or a variable
         if is_dot:
             return gen_ptr()
         else:

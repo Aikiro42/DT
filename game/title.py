@@ -38,6 +38,10 @@ def options_button_event():
     gamevars.game_state = uivars.OPTIONS
 
 
+def highscores_button_event():
+    gamevars.game_state = uivars.HIGHSCORES
+
+
 def quit_button_event():
     pyglet.app.exit()
 
@@ -68,6 +72,13 @@ credits_button = Button('assets/title/credits.png', x=window.width // 2,
                         image_active_dir='assets/title/credits_active.png')
 uivars.add_ui_button(uivars.MAIN_MENU, credits_button)
 # '''
+
+highscores_button = Button('assets/title/highscores.png', x=window.width // 2,
+                           image_hover_dir='assets/title/highscores_hover.png',
+                           image_active_dir='assets/title/highscores_active.png')
+uivars.add_ui_button(uivars.MAIN_MENU, highscores_button)
+highscores_button.click_event = highscores_button_event
+
 quit_button = Button('assets/title/quit.png', x=window.width // 2,
                      image_hover_dir='assets/title/quit_hover.png',
                      image_active_dir='assets/title/quit_active.png')
