@@ -6,20 +6,20 @@ import game.gamemode
 import game.pause
 import game.endgame
 import game.options
+import game.highscores
 
-from utils.interface import uivars, Textbox, Button
+from utils.interface import uivars, Textbox, Button, ToggledButton
 from utils.utils import *
 from utils.sounds import *
 
 
 # [Notes]==========================================================
 
-# todo: FIX LAG PROBLEM
-# todo: fix weak references without going fullscreen
-# todo: make score saving to file possible, sort scores
-# todo: options, instructions, high score, credits
-# todo: test pause-restart, pause-resume
-# todo: test game over -> try again
+# todo: hello world first code generated
+# todo: sir edgar pic easter egg
+# todo: rawwstarr easter egg
+# todo: sana all easter egg
+# todo: instructions, high scores, credits
 # todo: document code, comment in necessary places
 # todo: properly undraw textbox rectangle
 # todo: save score with name
@@ -31,6 +31,8 @@ def check_for_endgame():
         sfx_game_over.play()
         sfx_game_over_m.play()
         bgm_game_mode.stop()
+        game.gamemode.code_textbox.set_text('')
+        game.gamemode.timer_label.color(255, 255, 255, 255)
         window.unfocus()
         pyglet.clock.unschedule(timer_countdown)
         gamevars.is_timer = False
@@ -43,6 +45,9 @@ def check_for_endgame():
 
 def timer_countdown(dt):
     gamevars.timer -= 1
+    if gamevars.timer < gamevars.timer_redline:
+        game.gamemode.timer_label.color(255, 100, 100, 255)
+        sfx_timer.play()
     check_for_endgame()
 
 
@@ -153,6 +158,17 @@ def on_key_press(symbol, modifiers):
                 gamevars.timer = -1
                 check_for_endgame()
             # If code is correct, add to score and reset timer
+            elif player_codeline in gamevars.eggnames:
+                # play sound
+                sfx_correct.play()
+                # reset code textbox
+                game.gamemode.code_textbox.set_text('')
+                # recolor codeline label
+                game.gamemode.codeline_label.color(255, 255, 255, 255)
+                # add to score
+                gamevars.score += 100
+                # increment timer
+                # change flags
             elif gamevars.codeline_str == player_codeline or (player_codeline == gamevars.konami):
                 # play sound
                 sfx_correct.play()
@@ -164,6 +180,9 @@ def on_key_press(symbol, modifiers):
                 gamevars.score += len(gamevars.codeline_str) * 7 // 2
                 # increment timer
                 gamevars.timer = min(gamevars.max_time, gamevars.timer + gamevars.timer_increment)
+                # change timer color
+                if gamevars.timer >= gamevars.timer_redline:
+                    game.gamemode.timer_label.color(255, 255, 255, 255)
                 # set codeline text
                 gamevars.codeline_str = gen_code(gamevars.code_depth)
                 game.gamemode.codeline_label.text = gamevars.codeline_str
@@ -179,6 +198,9 @@ def on_key_press(symbol, modifiers):
                     game.gamemode.codeline_label.color(255, 255, 0, 255)
                 # revert codeline color after show error time specified
                 pyglet.clock.schedule_once(revert_codeline_color, gamevars.show_error_time)
+        elif symbol == pyglet.window.key.ESCAPE:
+            if gamevars.game_state == uivars.GAME_MODE:
+                game.gamemode.pause_button_event()
         # play sfx when typing
         sfx_type.play()
 
@@ -215,14 +237,14 @@ def on_mouse_release(x, y, button, modifiers):
 def on_mouse_motion(x, y, dx, dy):
     for interactable in uivars.ui_buttons[gamevars.game_state] + uivars.ui_textboxes[gamevars.game_state]:
         if interactable.hit(x, y):
-            if isinstance(interactable, Button):
+            if isinstance(interactable, Button) or isinstance(interactable, ToggledButton):
                 window.cursor = window.CURSOR_HAND
                 interactable.hover_event()
             elif isinstance(interactable, Textbox):
                 window.cursor = window.CURSOR_TEXT
             break
         else:
-            if isinstance(interactable, Button):
+            if isinstance(interactable, Button) or isinstance(interactable, ToggledButton):
                 interactable.default_event()
             window.cursor = window.CURSOR_DEFAULT
     change_cursor(window.cursor)

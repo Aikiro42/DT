@@ -8,8 +8,9 @@ class VarObj:
     def __init__(self):
         self.debug = False
         self.admin = True
-        self.kill_command = 'imperial_orders[66]'
+        self.kill_command = "game.end()"
         self.konami = 'hi'
+        self.eggnames = ['luis', 'rain', 'jackie', 'enrico']
 
         self.game_state = uivars.MAIN_MENU
         self.is_music_playing = False
@@ -25,7 +26,7 @@ class VarObj:
 
         self.bounce_threshold = 10
         self.bounce = 0
-        self.bounce_increment = 0.5
+        self.bounce_increment = 1
         self.animate_score_update = False
         self.display_fps = False
 
@@ -35,8 +36,9 @@ class VarObj:
         self.display_score = 0
         self.display_increment = 5
         self.max_time = 59
-        self.timer_increment = 2
+        self.timer_increment = 3
         self.timer = self.max_time
+        self.timer_redline = 10
         # self.codeline_str = "Arcade.alternate(is_the_font, [to, be_used])"
         self.code_depth = (self.max_time // 20) + 1
         self.codeline_str = gen_code(self.code_depth)

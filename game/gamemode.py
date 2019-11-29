@@ -49,14 +49,14 @@ uivars.add_ui_element(uivars.GAME_MODE, codeline_label)
 pause_button = Button('assets/gamemode/pause.png',
                       image_hover_dir='assets/gamemode/pause_hover.png',
                       image_active_dir='assets/gamemode/pause_active.png')
-pause_button.set_coor(0, window.height)
-pause_button.set_anchor(uivars.LOWER_LEFT)
+pause_button.set_coor(0, 0)
+pause_button.set_anchor(uivars.UPPER_LEFT)
 pause_button.pyglet_coor(window)
 uivars.add_ui_button(uivars.GAME_MODE, pause_button)
 pause_button.click_event = pause_button_event
 
-score_label = Label(str(gamevars.score), font_name="Arcade Alternate", font_size=24, x=0, y=0)
-score_label.set_anchor(uivars.UPPER_LEFT)
+score_label = Label(str(gamevars.score), font_name="Arcade Alternate", font_size=24, x=window.width // 2, y=0)
+score_label.set_anchor(uivars.CENTER_TOP)
 uivars.add_ui_label(uivars.GAME_MODE, score_label)
 
 timer_label = Label(str(gamevars.timer), font_name="Arcade Alternate", font_size=36, x=window.width, y=0)
