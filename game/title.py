@@ -61,7 +61,7 @@ options_button = Button('assets/title/options.png', x=window.width // 2,
 uivars.add_ui_button(uivars.MAIN_MENU, options_button)
 options_button.click_event = options_button_event
 
-'''
+# '''
 instructions_button = Button('assets/title/instructions.png', x=window.width // 2,
                              image_hover_dir='assets/title/instructions_hover.png',
                              image_active_dir='assets/title/instructions_active.png')

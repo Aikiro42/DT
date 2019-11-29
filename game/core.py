@@ -6,7 +6,7 @@ from utils.utils import gen_code
 # Game Variables
 class VarObj:
     def __init__(self):
-        self.debug = False
+        self.debug = True
         self.admin = True
         self.kill_command = "order_66.execute()"
         self.konami = 'hi'
@@ -38,7 +38,7 @@ class VarObj:
         self.score = 0
         self.display_score = 0
         self.display_increment = 5
-        self.max_time = 150
+        self.max_time = 59
         self.timer_increment = self.max_time // 20
         self.timer = self.max_time
         self.timer_redline = 10

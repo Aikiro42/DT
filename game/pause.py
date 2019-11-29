@@ -8,8 +8,10 @@ ui_y_offset = 100
 def quit_button_event():
     bgm_game_mode.stop()
     bgm_main_menu.play()
+    bgm_rawstarr.stop()
     gamevars.is_game = False
     gamevars.is_pause = False
+    gamevars.is_rawstarr = False
     sfx_game_over_m.play()
     gamevars.game_state = uivars.MAIN_MENU
 
@@ -18,6 +20,7 @@ def restart_button_event():
     # reset gamemode music
     bgm_game_mode.stop()
     bgm_game_mode.play()
+    bgm_rawstarr.stop()
     # reset gamemode textboxes
     uivars.reset_ui_textboxes(uivars.GAME_MODE)
     # reset variables
@@ -26,6 +29,7 @@ def restart_button_event():
     gamevars.codeline_str = gen_code(gamevars.code_depth)
     gamevars.is_pause = False
     gamevars.is_restart = True
+    gamevars.is_rawstarr = False
     window.set_focus(uivars.ui_textboxes[uivars.GAME_MODE][0])
     sfx_game_mode_init.play()
     gamevars.game_state = uivars.GAME_MODE
@@ -33,6 +37,8 @@ def restart_button_event():
 
 def resume_button_event():
     bgm_game_mode.play()
+    if gamevars.is_rawstarr:
+        bgm_rawstarr.play()
     gamevars.is_pause = False
     window.set_focus(uivars.ui_textboxes[uivars.GAME_MODE][0])
     gamevars.game_state = uivars.GAME_MODE

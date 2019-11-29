@@ -29,6 +29,7 @@ def game_timer_callback(*args, **kwargs):
 
 def pause_button_event():
     bgm_game_mode.pause()
+    bgm_rawstarr.pause()
     sfx_pause.play()
     window.unfocus()
     window.clear()
