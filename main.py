@@ -14,9 +14,6 @@ from utils.sounds import *
 
 # [Notes]==========================================================
 
-# todo: hello world first code generated
-# todo: sir edgar pic easter egg
-# todo: rawwstarr easter egg
 # todo: sana all easter egg
 # todo: instructions, high scores, credits
 # todo: document code, comment in necessary places
@@ -38,7 +35,7 @@ def dismiss_class(dt):
     edgar_draw = False
 
 
-# =============================================================================
+# main utility functions =============================================================================
 
 def check_for_endgame():
     if gamevars.timer < 0 and gamevars.game_state != uivars.ENDGAME:
@@ -197,6 +194,8 @@ def on_key_press(symbol, modifiers):
                 bgm_rawstarr.play()
                 gamevars.is_rawstarr = True
                 pass
+
+            # When any of the devs' first names are entered, the player is awarded 100 points
             elif player_codeline in gamevars.eggnames:  # Dev team name easter eggs
                 # play sound
                 sfx_correct.play()
@@ -206,8 +205,9 @@ def on_key_press(symbol, modifiers):
                 game.gamemode.codeline_label.color(255, 255, 255, 255)
                 # add to score
                 gamevars.score += 100
-                # code correct
-            elif gamevars.codeline_str == player_codeline or (player_codeline == gamevars.konami and gamevars.debug):
+
+            # This code runs if the code is correct
+            elif gamevars.codeline_str == player_codeline:
                 # play sound
                 sfx_correct.play()
                 # reset code textbox
@@ -224,7 +224,6 @@ def on_key_press(symbol, modifiers):
                 # set codeline text
                 gamevars.codeline_str = gen_code(gamevars.code_depth)
                 game.gamemode.codeline_label.text = gamevars.codeline_str
-                # change flags
             else:  # if code is incorrect
                 if gamevars.is_rawstarr:
                     gamevars.timer = -1
