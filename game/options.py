@@ -32,8 +32,13 @@ def sfx_toggle_event():
 
 ui_y_offset = 100
 
+
+# Background
+options_bg = AnimatedBackground('assets/options_bg.gif', window)
+uivars.add_ui_background(uivars.OPTIONS, options_bg)
+
 options_text = Image('assets/options/options.png', x=window.width // 2)
-options_text.set_coor(options_text.coor.x, options_text.image.height + ui_y_offset)
+options_text.set_coor(options_text.sprite.x, options_text.sprite.height + ui_y_offset)
 options_text.center()
 options_text.pyglet_coor(window)
 uivars.add_ui_element(uivars.OPTIONS, options_text)
@@ -48,7 +53,7 @@ bgm_toggle = ToggledButton(
     x=window.width // 3
 )
 bgm_toggle.center()
-bgm_toggle.set_coor(bgm_toggle.button.coor.x, window.height // 2)
+bgm_toggle.set_coor(bgm_toggle.button.sprite.x, window.height // 2)
 bgm_toggle.pyglet_coor(window)
 uivars.add_ui_button(uivars.OPTIONS, bgm_toggle)
 bgm_toggle.set_click_event(bgm_toggle_event)
@@ -63,7 +68,7 @@ sfx_toggle = ToggledButton(
     x=window.width * 2 // 3
 )
 sfx_toggle.center()
-sfx_toggle.set_coor(sfx_toggle.button.coor.x, window.height // 2)
+sfx_toggle.set_coor(sfx_toggle.button.sprite.x, window.height // 2)
 sfx_toggle.pyglet_coor(window)
 uivars.add_ui_button(uivars.OPTIONS, sfx_toggle)
 sfx_toggle.set_click_event(sfx_toggle_event)
@@ -72,7 +77,12 @@ main_menu_button = Button('assets/options/main_menu.png', x=window.width // 2,
                           image_hover_dir='assets/options/main_menu_hover.png',
                           image_active_dir='assets/options/main_menu_active.png')
 main_menu_button.center()
-main_menu_button.set_coor(main_menu_button.coor.x, window.height // 2)
+main_menu_button.set_coor(main_menu_button.sprite.x, window.height // 2)
 main_menu_button.pyglet_coor(window)
 uivars.add_ui_button(uivars.OPTIONS, main_menu_button)
 main_menu_button.click_event = main_menu_button_event
+
+b_rescale = (window.width/uivars.rescaling_factor)
+b_rescale += (1 - b_rescale)/1.5
+for b in uivars.ui_buttons[uivars.OPTIONS]:
+    b.rescale(b_rescale)

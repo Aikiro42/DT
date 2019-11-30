@@ -29,13 +29,13 @@ endgame_bg = AnimatedBackground('assets/endgame_bg.gif', window)
 uivars.add_ui_background(uivars.ENDGAME, endgame_bg)
 
 time_up_text = Image('assets/endgame/time_up.png', x=window.width // 2)
-time_up_text.set_coor(time_up_text.coor.x, time_up_text.image.height + ui_y_offset)
+time_up_text.set_coor(time_up_text.sprite.x, time_up_text.sprite.height + ui_y_offset)
 time_up_text.center()
 time_up_text.pyglet_coor(window)
 uivars.add_ui_element(uivars.ENDGAME, time_up_text)
 
 endgame_score_label = Label('Score: 0', font_size=24, font_name='Arcade Alternate', x=window.width // 2)
-endgame_score_label.set_coor(endgame_score_label.x, time_up_text.image.height*2 + ui_y_offset + 25)
+endgame_score_label.set_coor(endgame_score_label.x, time_up_text.sprite.height*2 + ui_y_offset + 25)
 endgame_score_label.center()
 endgame_score_label.pyglet_coor(window)
 uivars.add_ui_element(uivars.ENDGAME, endgame_score_label)
@@ -55,8 +55,8 @@ main_menu_button.click_event = main_menu_button_event
 button_order = 1
 for endgame_button in uivars.ui_buttons[uivars.ENDGAME]:
     endgame_button.center()
-    endgame_button.set_coor(endgame_button.coor.x, button_order * endgame_button.image.height +
-                            time_up_text.image.height +
+    endgame_button.set_coor(endgame_button.sprite.x, button_order * endgame_button.sprite.height +
+                            time_up_text.sprite.height +
                             ui_y_offset * 2 +
                             25 * button_order)
     endgame_button.pyglet_coor(window)

@@ -41,7 +41,7 @@ def code_textbox_click_event():
     window.set_focus(code_textbox)
 
 
-gamemode_bg = AnimatedBackground('assets/animated_bg_01.gif', window)
+gamemode_bg = AnimatedBackground('assets/animated_bg_10.gif', window)
 uivars.add_ui_background(uivars.GAME_MODE, gamemode_bg)
 
 codeline_label = Label(gamevars.codeline_str, font_name="Consolas")

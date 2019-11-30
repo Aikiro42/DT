@@ -47,6 +47,7 @@ class InterfaceVars:
         self.ui_labels = deepcopy(self.ui_elements)
         self.ui_textboxes = deepcopy(self.ui_elements)
         self.ui_backgrounds = deepcopy(self.ui_elements)
+        self.rescaling_factor = 1536
 
     def add_ui_element(self, view_str, ui_element):
         self.ui_elements[view_str].append(ui_element)
@@ -81,13 +82,13 @@ class InterfaceVars:
         if anchor_tuple[0] == 'left':
             img_anchor.append(0)
         elif anchor_tuple[0] == 'center':
-            img_anchor.append(image_object.image.width // 2)
+            img_anchor.append(image_object.sprite.width // 2)
         elif anchor_tuple[0] == 'right':
-            img_anchor.append(image_object.image.width)
+            img_anchor.append(image_object.sprite.width)
         if anchor_tuple[1] == 'top':
-            img_anchor.append(image_object.image.height)
+            img_anchor.append(image_object.sprite.height)
         elif anchor_tuple[1] == 'center':
-            img_anchor.append(image_object.image.height // 2)
+            img_anchor.append(image_object.sprite.height // 2)
         elif anchor_tuple[1] == 'bottom':
             img_anchor.append(0)
 
@@ -117,10 +118,13 @@ class Rectangle(object):
     """Draws a rectangle into a batch."""
 
     def __init__(self, x1, y1, x2, y2, batch, color=(200, 200, 220, 255)):
-        self.vertex_list = batch.add(4, pyglet.gl.GL_QUADS, None,
-                                     ('v2i', [x1, y1, x2, y1, x2, y2, x1, y2]),
-                                     ('c4B', color * 4)
-                                     )
+        self.vertex_list = pyglet.graphics.vertex_list(4,
+                                                       ('v2i', [x1, y1, x2, y1, x2, y2, x1, y2]),
+                                                       ('c4B', color * 4)
+                                                       )
+
+    def draw(self):
+        self.vertex_list.draw(pyglet.gl.GL_QUADS)
 
 
 class Textbox(object):
@@ -138,7 +142,7 @@ class Textbox(object):
         height = font.ascent - font.descent
 
         self.layout = pyglet.text.layout.IncrementalTextLayout(
-            self.document, width, height, multiline=False, batch=batch)
+            self.document, width, height, multiline=False)
         self.caret = pyglet.text.caret.Caret(self.layout)
 
         self.layout.x = x
@@ -197,7 +201,8 @@ class Textbox(object):
     def draw(self):
         if not self.has_outline:
             self.draw_rectangle()
-        self.batch.draw()
+        self.rectangle.draw()
+        self.layout.draw()
         self.rendered = True
 
     def click_event(self):
@@ -205,49 +210,76 @@ class Textbox(object):
 
 
 class Image:
-    def __init__(self, image_dir, x=0, y=0):
-        self.image = pyglet.resource.image(image_dir)
-        self.coor = Coordinates(x, y)
+    def __init__(self, image_dir, x=0, y=0, batch=None):
+        self.image_default = pyglet.resource.image(image_dir)
+        self.sprite = pyglet.sprite.Sprite(self.image_default, x, y, batch=batch)
         self.rendered = False
 
     def set_coor(self, x, y):
-        self.coor.x = x
-        self.coor.y = y
+        self.sprite.update(x=x, y=y)
+
+    def set_x(self, x):
+        self.sprite.update(x=x)
+
+    def get_x(self):
+        return self.sprite.x
+
+    def set_y(self, y):
+        self.sprite.update(y=y)
+
+    def get_y(self):
+        return self.sprite.y
+
+    def resize(self, width, height):
+        width /= self.sprite.width
+        height /= self.sprite.height
+        self.sprite.update(scale_x=width, scale_y=height)
+
+    def rescale(self, scale):
+        self.sprite.update(scale=scale)
 
     def pyglet_coor(self, window_obj):
-        self.coor.pyglet_coor(window_obj)
+        self.sprite.y = window_obj.height - self.sprite.y
 
     def center(self):
         """Sets an image's anchor point to its center"""
-        self.image.anchor_x = self.image.width // 2
-        self.image.anchor_y = self.image.height // 2
+        self.sprite.image.anchor_x = self.image_default.width // 2
+        self.sprite.image.anchor_y = self.image_default.height // 2
 
     def set_anchor(self, anchor_tuple: tuple):
         anchors = uivars.get_image_anchor(self, anchor_tuple)
-        self.image.anchor_x = anchors[0]
-        self.image.anchor_y = anchors[1]
+        self.sprite.image.anchor_x = anchors[0]
+        self.sprite.image.anchor_y = anchors[1]
 
     def draw(self):
-        self.image.blit(self.coor.x, self.coor.y)
+        self.sprite.draw()
         self.rendered = True
 
 
 class Background(Image):
-    def __init__(self, background_dir, window_obj):
-        super(Background, self).__init__(background_dir, x=window_obj // 2, y=window_obj // 2)
+    def __init__(self, background_dir, window_obj, batch=None):
+        super(Background, self).__init__(background_dir, x=window_obj // 2, y=window_obj // 2, batch=batch)
         self.set_anchor(uivars.CENTER)
         self.pyglet_coor(window_obj)
 
 
 class AnimatedBackground:
-    def __init__(self, gif_dir, window_obj):
+    def __init__(self, gif_dir, window_obj, full_scale=True, batch=None):
         self.animation = pyglet.image.load_animation(gif_dir)
-        self.sprite = pyglet.sprite.Sprite(self.animation)
-        self.fill_dimensions(window_obj)
+        self.sprite = pyglet.sprite.Sprite(self.animation, batch=batch)
+        if full_scale:
+            self.fill_dimensions(window_obj)
+        else:
+            self.center()
+            self.set_coor(window_obj.width // 2, window_obj.height // 2)
 
     def set_coor(self, x, y):
         self.sprite.x = x
         self.sprite.y = y
+
+    def center(self):
+        self.sprite.image.anchor_x = self.sprite.width // 2
+        self.sprite.image.anchor_y = self.sprite.height // 2
 
     def set_dimensions(self, width, height):
         height_scale = height / self.sprite.height
@@ -263,9 +295,8 @@ class AnimatedBackground:
 
 
 class Button(Image):
-    def __init__(self, image_dir, x=0, y=0, image_hover_dir=None, image_active_dir=None):
-        super(Button, self).__init__(image_dir, x, y)
-        self.image_default = self.image
+    def __init__(self, image_dir, x=0, y=0, image_hover_dir=None, image_active_dir=None, batch=None):
+        super(Button, self).__init__(image_dir, x, y, batch)
         self.image_hover = None
         self.image_active = None
         self.is_default = True
@@ -276,19 +307,21 @@ class Button(Image):
 
     def center(self):
         """Sets an image's anchor point to its center"""
-        self.image.anchor_x = self.image.width // 2
-        self.image.anchor_y = self.image.height // 2
+        ax = self.sprite.image.width // 2
+        ay = self.sprite.image.height // 2
+        self.sprite.image.anchor_x = ax
+        self.sprite.image.anchor_y = ay
         if self.image_hover:
-            self.image_hover.anchor_x = self.image.width // 2
-            self.image_hover.anchor_y = self.image.height // 2
+            self.image_hover.anchor_x = ax
+            self.image_hover.anchor_y = ay
         if self.image_active:
-            self.image_active.anchor_x = self.image.width // 2
-            self.image_active.anchor_y = self.image.height // 2
+            self.image_active.anchor_x = ax
+            self.image_active.anchor_y = ay
 
     def set_anchor(self, anchor_tuple: tuple):
         anchors = uivars.get_image_anchor(self, anchor_tuple)
-        self.image.anchor_x = anchors[0]
-        self.image.anchor_y = anchors[1]
+        self.sprite.image.anchor_x = anchors[0]
+        self.sprite.image.anchor_y = anchors[1]
         if self.image_hover:
             self.image_hover.anchor_x = anchors[0]
             self.image_hover.anchor_y = anchors[1]
@@ -297,13 +330,15 @@ class Button(Image):
             self.image_active.anchor_y = anchors[1]
 
     def hit(self, cursor_x, cursor_y, check_render=True):
-        ox = self.coor.x - self.image.anchor_x
-        oy = self.coor.y - self.image.anchor_y
+        ox = self.sprite.x - self.sprite.image.anchor_x * self.sprite.scale
+        oy = self.sprite.y - self.sprite.image.anchor_y * self.sprite.scale
+        ow = self.sprite.width
+        oh = self.sprite.height
         if check_render:
             check_render = self.rendered
         else:
             check_render = True
-        if check_render and ox < cursor_x < ox + self.image.width and oy < cursor_y < oy + self.image.height:
+        if check_render and ox < cursor_x < ox + ow and oy < cursor_y < oy + oh:
             return True
         else:
             return False
@@ -313,17 +348,17 @@ class Button(Image):
 
     def default_event(self):
         if not self.is_default:
-            self.image = self.image_default
+            self.sprite.image = self.image_default
 
     def hover_event(self):
-        if self.image_hover and self.image != self.image_hover:
-            self.image = self.image_hover
+        if self.image_hover and self.sprite.image != self.image_hover:
+            self.sprite.image = self.image_hover
             self.is_default = False
             sfx_hover.play()
 
     def active_event(self):
-        if self.image_active and self.image != self.image_active:
-            self.image = self.image_active
+        if self.image_active and self.sprite.image != self.image_active:
+            self.sprite.image = self.image_active
             self.is_default = False
             sfx_click.play()
 
@@ -332,11 +367,12 @@ class ToggledButton:
     def __init__(self, image_dir_a, image_dir_b,
                  x=0, y=0,
                  image_hover_dir_a=None, image_hover_dir_b=None,
-                 image_active_dir_a=None, image_active_dir_b=None):
+                 image_active_dir_a=None, image_active_dir_b=None,
+                 batch=None):
         self.button_a = Button(image_dir_a, x=x, y=y,
-                               image_hover_dir=image_hover_dir_a, image_active_dir=image_active_dir_a)
+                               image_hover_dir=image_hover_dir_a, image_active_dir=image_active_dir_a, batch=batch)
         self.button_b = Button(image_dir_b, x=x, y=y,
-                               image_hover_dir=image_hover_dir_b, image_active_dir=image_active_dir_b)
+                               image_hover_dir=image_hover_dir_b, image_active_dir=image_active_dir_b, batch=batch)
         self.button = self.button_a
         self.state = True  # True = on, False = off
         self.rendered = False
@@ -348,6 +384,10 @@ class ToggledButton:
     def set_anchor(self, anchor_tuple):
         self.button_a.set_anchor(anchor_tuple)
         self.button_b.set_anchor(anchor_tuple)
+
+    def rescale(self, scale):
+        self.button_a.rescale(scale)
+        self.button_b.rescale(scale)
 
     def hit(self, cursor_x, cursor_y):
         if self.rendered:
@@ -396,30 +436,6 @@ class ToggledButton:
         self.button_b.click_event = event_func
 
 
-class StyLabel:
-
-    def __init__(self, text='',
-                 font_name=None, font_size=None, bold=False, italic=False,
-                 color=(255, 255, 255, 255),
-                 x=0, y=0, width=None, height=None,
-                 anchor_x='left', anchor_y='baseline',
-                 align='left',
-                 multiline=False, dpi=None, batch=None, group=None):
-        self.document = pyglet.text.document.UnformattedDocument(text)
-        super(StyLabel, self).__init__(self.document, x, y, width, height,
-                                       anchor_x, anchor_y,
-                                       multiline, dpi, batch, group)
-
-        self.document.set_style(0, len(self.document.text), {
-            'font_name': font_name,
-            'font_size': font_size,
-            'bold': bold,
-            'italic': italic,
-            'color': color,
-            'align': align,
-        })
-
-
 class Label:
 
     def __init__(self, text='',
@@ -451,6 +467,12 @@ class Label:
     def set_coor(self, x, y):
         self.x = x
         self.y = y
+
+    def rescale(self, scale):
+        font_size = self.document.get_style('font_size')
+        self.document.set_style(0, len(self.document.text), {
+            'font_size': font_size * scale,
+        })
 
     def pyglet_coor(self, window_obj):
         self.y = window_obj.height - self.y

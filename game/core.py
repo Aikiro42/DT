@@ -6,7 +6,14 @@ from utils.utils import gen_code
 # Game Variables
 class VarObj:
     def __init__(self):
-        self.debug = True
+
+        self.allow_bg = True
+        self.debug_bg = False
+        self.debug_res = False
+        self.allow_anim = True
+        self.is_count_dt = True
+        self.debug_dt = 0
+
         self.admin = True
         self.kill_command = "order_66.execute()"
         self.konami = 'hi'
@@ -14,6 +21,8 @@ class VarObj:
         self.edgar = 'CS11.set_grade(1)'
         self.rawstarr = 'schedule_until(rawstarr, end=self.death)'
         self.is_rawstarr = False
+        self.heart_attack = 'DaemonThread<0x29A>.start(self.soul)'
+        self.is_heart_attack = False
 
         self.game_state = uivars.MAIN_MENU
         self.is_music_playing = False
@@ -60,7 +69,7 @@ screen = display.get_screens()[0]
 window_w = screen.width
 window_h = screen.height
 
-if gamevars.debug:
+if gamevars.debug_res:
     window_w = 800
     window_h = 600
 
@@ -80,7 +89,9 @@ window.set_icon(icon1, icon2, icon3)
 
 fps_display = pyglet.window.FPSDisplay(window=window)
 
-glClearColor(0.01, 0.075, 0.1, 0)
+glClearColor(0, 0, 0, 0)
+if gamevars.debug_bg:
+    glClearColor(1, 0, 1, 1)
 # glEnable(GL_LINE_SMOOTH) # antialiasing
 glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
 glEnable(GL_BLEND)  # transparency

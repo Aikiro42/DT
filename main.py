@@ -55,6 +55,7 @@ def check_for_endgame():
         gamevars.timer = gamevars.max_time
         game.endgame.endgame_score_label.text = 'Score: ' + str(gamevars.score)
         update_score_list(gamevars.score)  # stores score to file
+        game.highscores.update_highscores()
         gamevars.display_score = gamevars.score = 0
         gamevars.game_state = uivars.ENDGAME
 
@@ -74,10 +75,13 @@ def revert_codeline_color(dt):
 
 # Checks for changes in the game, basically the game logic
 def update(dt):
+    if gamevars.is_count_dt:
+        gamevars.debug_dt += 1
+
     # Main Menu Animation
-    if gamevars.game_state == uivars.MAIN_MENU:
+    if gamevars.game_state == uivars.MAIN_MENU and gamevars.allow_anim:
         # animate title
-        game.title.title.coor.y += gamevars.bounce_increment
+        game.title.title.sprite.y += gamevars.bounce_increment
         gamevars.bounce += gamevars.bounce_increment
         if gamevars.bounce == gamevars.bounce_threshold or gamevars.bounce == 0:
             gamevars.bounce_increment *= -1
@@ -126,9 +130,14 @@ def clear_window():
         element.rendered = False
 
 
+def update_high_scores():
+    pass
+
+
 def draw_interface(g_state):
-    for background_elem in uivars.ui_backgrounds[g_state]:
-        uivars.draw_element(background_elem, window)
+    if gamevars.allow_bg:
+        for background_elem in uivars.ui_backgrounds[g_state]:
+            uivars.draw_element(background_elem, window)
     for ui_element in uivars.ui_elements[g_state]:
         uivars.draw_element(ui_element, window)
 
@@ -152,7 +161,7 @@ def reset_textbox():
 
 def on_draw():
     clear_window()
-    if gamevars.game_state == uivars.GAME_MODE:
+    if gamevars.game_state == uivars.GAME_MODE or True:
         window.batch.draw()
     draw_interface(gamevars.game_state)
     if gamevars.display_fps:
@@ -172,7 +181,7 @@ def on_key_press(symbol, modifiers):
         if symbol == pyglet.window.key.ENTER and window.focus:
             player_codeline = game.gamemode.code_textbox.get_text()
             # if code matches kill command
-            if player_codeline == gamevars.kill_command and gamevars.admin:
+            if player_codeline == gamevars.kill_command:
                 # end timer
                 gamevars.timer = -1
                 check_for_endgame()
@@ -197,7 +206,8 @@ def on_key_press(symbol, modifiers):
                 game.gamemode.codeline_label.color(255, 255, 255, 255)
                 # add to score
                 gamevars.score += 100
-            elif gamevars.codeline_str == player_codeline or (player_codeline == gamevars.konami):  # code correct
+                # code correct
+            elif gamevars.codeline_str == player_codeline or (player_codeline == gamevars.konami and gamevars.debug):
                 # play sound
                 sfx_correct.play()
                 # reset code textbox
