@@ -12,17 +12,23 @@ from utils.interface import uivars, Textbox, Button, ToggledButton, Image
 from utils.utils import *
 from utils.sounds import *
 
+'''
+The engine of the game - imports almost everything
+'''
+
 # [Notes]==========================================================
 
+# ...yes. Unfinished business. Please don't mind this. We didn't specify these in the
+# proposal, after all.
 # todo: sana all easter egg
-# todo: instructions, high scores, credits
-# todo: document code, comment in necessary places
-# todo: properly undraw textbox rectangle
+# todo: instructions, credits
 # todo: save score with name
 
 # =================================================================
 
 # Easter Eggs =================================================================
+
+# No, this is definitely nothing, move along.
 
 edgar_pic = Image('assets/edgar.jpg', x=window.width // 2, y=window.height // 2)
 edgar_pic.center()
@@ -36,6 +42,10 @@ def dismiss_class(dt):
 
 
 # main utility functions =============================================================================
+
+# Function called every time the timer is ticked.
+# Was originally in the update() function, but it caused
+# performance problems (imagine checking every moment instead of every second)
 
 def check_for_endgame():
     if gamevars.timer < 0 and gamevars.game_state != uivars.ENDGAME:
@@ -57,6 +67,10 @@ def check_for_endgame():
         gamevars.game_state = uivars.ENDGAME
 
 
+# Function scheduled by pyglet's clock when it's game time.
+# This function decrements the game timer.
+# If the timer is less than the timer redline,
+# the label is colored red and a warning effect plays every tick.
 def timer_countdown(dt):
     if not gamevars.is_rawstarr:
         gamevars.timer -= 1
@@ -66,12 +80,15 @@ def timer_countdown(dt):
     check_for_endgame()
 
 
+# Function scheduled one second after the player submits a code mismatch.
 def revert_codeline_color(dt):
     game.gamemode.codeline_label.color(255, 255, 255, 255)
 
 
 # Checks for changes in the game, basically the game logic
+# Called every moment/frame of the game.
 def update(dt):
+    # See game.core about this thing.
     if gamevars.is_count_dt:
         gamevars.debug_dt += 1
 
@@ -83,7 +100,7 @@ def update(dt):
         if gamevars.bounce == gamevars.bounce_threshold or gamevars.bounce == 0:
             gamevars.bounce_increment *= -1
 
-    # Schedule timer update if game state is game mode
+    # Schedule timer decrement if game state is game mode
     if gamevars.game_state == uivars.GAME_MODE:
         game.gamemode.codeline_label.text = gamevars.codeline_str
         game.gamemode.timer_label.text = str(gamevars.timer)
@@ -117,20 +134,25 @@ def update(dt):
 pyglet.clock.schedule_interval(update, 1 / 60)
 bgm_main_menu.play()
 
-
 # [convenience functions]==============================================================================================
 
+'''
+Most of the functions here are dependent on utils.interface.py
+I recommend reading the code here with utils.interface.py
+'''
 
+
+# Clears the window and switches the flags of the UI off.
+# See utils.interface regarding the implementation of these UI.
 def clear_window():
     window.clear()
     for element in uivars.ui_elements[gamevars.game_state]:
         element.rendered = False
 
 
-def update_high_scores():
-    pass
-
-
+# Draws the interface.
+# It draws the background sprite first,
+# then it draws the elements on top of it.
 def draw_interface(g_state):
     if gamevars.allow_bg:
         for background_elem in uivars.ui_backgrounds[g_state]:
@@ -139,11 +161,15 @@ def draw_interface(g_state):
         uivars.draw_element(ui_element, window)
 
 
+# Changes the mouse cursor.
+# Made for the sake of code readability.
+# ...Aren't all functions?
 def change_cursor(cursor_constant):
     window.set_mouse_cursor(window.get_system_mouse_cursor(cursor_constant))
 
 
 '''
+# This code is unnecessary
 def reset_textbox():
     window.unfocus()
     gamevars.player_codeline = game.gamemode.code_textbox.get_text()
@@ -155,11 +181,15 @@ def reset_textbox():
 # =====================================================================================================================
 # [event handling functions]===========================================================================================
 
-
+# Called every time an event happens.
+# An event would be when any of the functions below are called,
+# or any scheduled functions by pyglet's clock.
+# It simply clears the window and redraws the UI.
+# It also redraws the FPS depending on the display_fps flag
+# That's all.
 def on_draw():
     clear_window()
-    if gamevars.game_state == uivars.GAME_MODE or True:
-        window.batch.draw()
+    # window.batch.draw()
     draw_interface(gamevars.game_state)
     if gamevars.display_fps:
         fps_display.draw()
@@ -167,13 +197,33 @@ def on_draw():
         edgar_pic.draw()
 
 
+# Called when the window is resized.
+# Seemingly unused, but let's not touch it just in case.
 def on_resize(width, height):
     print('on_resize_called')
     on_draw()
 
 
+# Called when any key on the keyboard is pressed.
+# If enter is pressed while either in the main menu or
+# game over screen, it starts the game for you.
+# During the game, it submits your code entry and compares it
+# against the codeline string.
+# If your code mismatches, either of the two may happen:
+# If your code matches but it has extra characters at the end,
+# the codeline display turns yellow for a second.
+# Otherwise, it turns red from the point where you made a mistake.
+# If you enter certain code, certain things might happen.
 def on_key_press(symbol, modifiers):
-    if gamevars.game_state == uivars.GAME_MODE:
+    if gamevars.game_state == uivars.MAIN_MENU:
+        if symbol == pyglet.window.key.ENTER:
+            game.title.start_button_event()
+    elif gamevars.game_state == uivars.ENDGAME:
+        if symbol == pyglet.window.key.ENTER:
+            game.endgame.try_again_button_event()
+        elif symbol == pyglet.window.key.ESCAPE:
+            game.endgame.main_menu_button_event()
+    elif gamevars.game_state == uivars.GAME_MODE:
         # check code when enter is pressed
         if symbol == pyglet.window.key.ENTER and window.focus:
             player_codeline = game.gamemode.code_textbox.get_text()
@@ -241,15 +291,20 @@ def on_key_press(symbol, modifiers):
         elif symbol == pyglet.window.key.ESCAPE:
             if gamevars.game_state == uivars.GAME_MODE:
                 game.gamemode.pause_button_event()
-        # play sfx when typing
-        sfx_type.play()
+    # play sfx when typing
+    sfx_type.play()
 
 
+# Called when a key is released.
+# Here just in case.
 def on_key_release(symbol, modifiers):
     if symbol == pyglet.window.key.ENTER and window.focus:
         return True
 
 
+# Called when any button on the mouse is pressed.
+# This function passes the mouse cursor coordinates to all interactable objects
+# (buttons, toggled buttons, textboxes) and tests whether t
 def on_mouse_press(x, y, button, modifiers):
     window.cursor = window.CURSOR_DEFAULT
     change_cursor(window.cursor)
