@@ -45,6 +45,10 @@ def highscores_button_event():
 
 def quit_button_event():
     save_options_to_ini()
+    window.has_exit = True
+    from pyglet import app
+    if app.event_loop.is_running:
+        window.close()
     pyglet.app.exit()
 
 
