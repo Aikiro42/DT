@@ -27,6 +27,14 @@ def start_button_event():
     window.set_focus(code_textbox)
 
 
+def credits_button_event():
+    gamevars.game_state = uivars.CREDITS
+
+
+def instructions_button_event():
+    gamevars.game_state = uivars.INSTRUCTIONS
+
+
 def options_button_event():
     gamevars.game_state = uivars.OPTIONS
 
@@ -70,17 +78,18 @@ highscores_button = Button('assets/title/highscores.png', x=window.width // 2,
 uivars.add_ui_button(uivars.MAIN_MENU, highscores_button)
 highscores_button.click_event = highscores_button_event
 
-'''
 instructions_button = Button('assets/title/instructions.png', x=window.width // 2,
                              image_hover_dir='assets/title/instructions_hover.png',
                              image_active_dir='assets/title/instructions_active.png')
 uivars.add_ui_button(uivars.MAIN_MENU, instructions_button)
+instructions_button.click_event = instructions_button_event
 
 credits_button = Button('assets/title/credits.png', x=window.width // 2,
                         image_hover_dir='assets/title/credits_hover.png',
                         image_active_dir='assets/title/credits_active.png')
 uivars.add_ui_button(uivars.MAIN_MENU, credits_button)
-# '''
+credits_button.click_event = credits_button_event
+
 
 quit_button = Button('assets/title/quit.png', x=window.width // 2,
                      image_hover_dir='assets/title/quit_hover.png',
@@ -89,8 +98,8 @@ uivars.add_ui_button(uivars.MAIN_MENU, quit_button)
 quit_button.click_event = quit_button_event
 
 ui_button_order = 1  # helps with positioning the main menu buttons
-b_rescale = (window.width/uivars.rescaling_factor)
-b_rescale += (1 - b_rescale)/1.5
+b_rescale = (window.width / uivars.rescaling_factor)
+b_rescale += (1 - b_rescale) / 1.5
 for mmb in uivars.ui_buttons[uivars.MAIN_MENU]:
     mmb.rescale(b_rescale)
     # mmb.set_coor(window.width // 2, title.sprite.height + 100 +

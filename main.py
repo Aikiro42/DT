@@ -7,6 +7,8 @@ import game.pause
 import game.endgame
 import game.options
 import game.highscores
+import game.instructions
+import game.credits
 
 from utils.interface import uivars, Textbox, Button, ToggledButton, Image, Background
 from utils.utils import *
@@ -243,96 +245,97 @@ def on_resize(width, height):
 # Otherwise, it turns red from the point where you made a mistake.
 # If you enter certain code, certain things might happen.
 def on_key_press(symbol, modifiers):
-    if gamevars.game_state == uivars.MAIN_MENU:
-        if symbol == pyglet.window.key.ENTER:
-            game.title.start_button_event()
-    elif gamevars.game_state == uivars.ENDGAME:
-        if symbol == pyglet.window.key.ENTER:
-            game.endgame.try_again_button_event()
-        elif symbol == pyglet.window.key.ESCAPE:
-            game.endgame.main_menu_button_event()
-    elif gamevars.game_state == uivars.GAME_MODE:
-        # check code when enter is pressed
-        if symbol == pyglet.window.key.ENTER and window.focus:
-            player_codeline = game.gamemode.code_textbox.get_text()
-
-            # if code matches kill command
-            if player_codeline == gamevars.kill_command:
-                # end timer
-                gamevars.timer = -1
-                check_for_endgame()
-
-            # if code matches DaemonThread schedule command
-            if player_codeline == gamevars.daemon:
-                gamevars.is_daemon = True
-                bgm_main_menu.stop()
-                bgm_game_mode.stop()
-                game.options.is_bgm_allowed(False)
-                game.gamemode.code_textbox.set_text('')
-
-            elif player_codeline == gamevars.edgar:  # Edgar easter egg
-                game.gamemode.code_textbox.set_text('')
-                global edgar_draw
-                edgar_draw = True
-                pyglet.clock.schedule_once(dismiss_class, 1)
-
-            # If code is correct, change game mechanics
-            elif player_codeline == gamevars.rawstarr:
-                game.gamemode.code_textbox.set_text('')
-                bgm_game_mode.stop()
-                bgm_rawstarr.play()
-                gamevars.is_rawstarr = True
-                pass
-
-            # When any of the devs' first names are entered, the player is awarded 100 points
-            elif player_codeline in gamevars.eggnames:  # Dev team name easter eggs
-                # play sound
-                sfx_correct.play()
-                # reset code textbox
-                game.gamemode.code_textbox.set_text('')
-                # recolor codeline label
-                game.gamemode.codeline_label.color(255, 255, 255, 255)
-                # add to score
-                gamevars.score += 100
-
-            # This code runs if the code is correct
-            elif gamevars.codeline_str == player_codeline:
-                # play sound
-                sfx_correct.play()
-                # reset code textbox
-                game.gamemode.code_textbox.set_text('')
-                # recolor codeline label
-                game.gamemode.codeline_label.color(255, 255, 255, 255)
-                # add to score
-                gamevars.score += gamevars.increment_score()
-                # increment timer
-                gamevars.timer = min(gamevars.max_time, gamevars.timer + gamevars.timer_increment)
-                gamevars.prev_timer = gamevars.timer
-                # change timer color
-                if gamevars.timer >= gamevars.timer_redline:
-                    game.gamemode.timer_label.color(255, 255, 255, 255)
-                # set codeline text
-                gamevars.codeline_str = gen_code(gamevars.code_depth)
-                game.gamemode.codeline_label.text = gamevars.codeline_str
-            else:  # if code is incorrect
-                if gamevars.is_rawstarr:
-                    gamevars.timer = -1
-                    check_for_endgame()
-                # play sound
-                sfx_error.play()
-                # recolor code appropriately
-                diff_index = get_differing_index(gamevars.codeline_str, player_codeline)
-                if diff_index < len(gamevars.codeline_str):
-                    game.gamemode.codeline_label.color_from(diff_index, 255, 0, 0, 255)
-                else:
-                    game.gamemode.codeline_label.color(255, 255, 0, 255)
-                # revert codeline color after show error time specified
-                pyglet.clock.schedule_once(revert_codeline_color, gamevars.show_error_time)
-        elif symbol == pyglet.window.key.ESCAPE:
-            if gamevars.game_state == uivars.GAME_MODE:
-                game.gamemode.pause_button_event()
     # play sfx when typing
     sfx_type.play()
+    if symbol == pyglet.window.key.ESCAPE:
+        if gamevars.game_state == uivars.ENDGAME:
+            game.endgame.main_menu_button_event()
+        elif gamevars.game_state == uivars.GAME_MODE:
+            game.gamemode.pause_button_event()
+        elif gamevars.game_state != uivars.PAUSE:
+            gamevars.game_state = uivars.MAIN_MENU
+    if symbol == pyglet.window.key.ENTER:
+        if gamevars.game_state == uivars.MAIN_MENU:
+            game.title.start_button_event()
+        elif gamevars.game_state == uivars.ENDGAME:
+            game.endgame.try_again_button_event()
+        elif gamevars.game_state == uivars.GAME_MODE:
+            # check code when enter is pressed
+            if window.focus:
+                player_codeline = game.gamemode.code_textbox.get_text()
+
+                # if code matches kill command
+                if player_codeline == gamevars.kill_command:
+                    # end timer
+                    gamevars.timer = -1
+                    check_for_endgame()
+
+                # if code matches DaemonThread schedule command
+                if player_codeline == gamevars.daemon:
+                    gamevars.is_daemon = True
+                    bgm_main_menu.stop()
+                    bgm_game_mode.stop()
+                    game.options.is_bgm_allowed(False)
+                    game.gamemode.code_textbox.set_text('')
+
+                elif player_codeline == gamevars.edgar:  # Edgar easter egg
+                    game.gamemode.code_textbox.set_text('')
+                    global edgar_draw
+                    edgar_draw = True
+                    pyglet.clock.schedule_once(dismiss_class, 1)
+
+                # If code is correct, change game mechanics
+                elif player_codeline == gamevars.rawstarr:
+                    game.gamemode.code_textbox.set_text('')
+                    bgm_game_mode.stop()
+                    bgm_rawstarr.play()
+                    gamevars.is_rawstarr = True
+                    pass
+
+                # When any of the devs' first names are entered, the player is awarded 100 points
+                elif player_codeline in gamevars.eggnames:  # Dev team name easter eggs
+                    # play sound
+                    sfx_correct.play()
+                    # reset code textbox
+                    game.gamemode.code_textbox.set_text('')
+                    # recolor codeline label
+                    game.gamemode.codeline_label.color(255, 255, 255, 255)
+                    # add to score
+                    gamevars.score += 100
+
+                # This code runs if the code is correct
+                elif gamevars.codeline_str == player_codeline:
+                    # play sound
+                    sfx_correct.play()
+                    # reset code textbox
+                    game.gamemode.code_textbox.set_text('')
+                    # recolor codeline label
+                    game.gamemode.codeline_label.color(255, 255, 255, 255)
+                    # add to score
+                    gamevars.score += gamevars.increment_score()
+                    # increment timer
+                    gamevars.timer = min(gamevars.max_time, gamevars.timer + gamevars.timer_increment)
+                    gamevars.prev_timer = gamevars.timer
+                    # change timer color
+                    if gamevars.timer >= gamevars.timer_redline:
+                        game.gamemode.timer_label.color(255, 255, 255, 255)
+                    # set codeline text
+                    gamevars.codeline_str = gen_code(gamevars.code_depth)
+                    game.gamemode.codeline_label.text = gamevars.codeline_str
+                else:  # if code is incorrect
+                    if gamevars.is_rawstarr:
+                        gamevars.timer = -1
+                        check_for_endgame()
+                    # play sound
+                    sfx_error.play()
+                    # recolor code appropriately
+                    diff_index = get_differing_index(gamevars.codeline_str, player_codeline)
+                    if diff_index < len(gamevars.codeline_str):
+                        game.gamemode.codeline_label.color_from(diff_index, 255, 0, 0, 255)
+                    else:
+                        game.gamemode.codeline_label.color(255, 255, 0, 255)
+                    # revert codeline color after show error time specified
+                    pyglet.clock.schedule_once(revert_codeline_color, gamevars.show_error_time)
 
 
 # Called when a key is released.
@@ -361,12 +364,12 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
 def on_mouse_release(x, y, button, modifiers):
     window.cursor = window.CURSOR_DEFAULT
     change_cursor(window.cursor)
-    on_mouse_motion(x, y, 0, 0)
     for interactable in uivars.ui_buttons[gamevars.game_state] + uivars.ui_textboxes[gamevars.game_state]:
         if interactable.hit(x, y):
             interactable.click_event()
     if window.focus:
         window.focus.caret.on_mouse_press(x, y, button, modifiers)
+    on_mouse_motion(x, y, 0, 0)
 
 
 def on_mouse_motion(x, y, dx, dy):

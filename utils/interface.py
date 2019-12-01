@@ -8,14 +8,14 @@ class InterfaceVars:
     def __init__(self):
         # CONSTANTS
         # game states
-        self.MAIN_MENU = 'main-menu'
-        self.GAME_MODE = 'game-mode'
-        self.ENDGAME = 'endgame'  # game over
-        self.OPTIONS = 'options'
-        self.INSTRUCTIONS = 'instructions'
-        self.CREDITS = 'credits'
-        self.PAUSE = 'pause'
-        self.HIGHSCORES = 'highscores'
+        self.MAIN_MENU = 1
+        self.GAME_MODE = 2
+        self.ENDGAME = 3  # game over
+        self.OPTIONS = 4
+        self.INSTRUCTIONS = 5
+        self.CREDITS = 6
+        self.PAUSE = 7
+        self.HIGHSCORES = 8
 
         # label anchors
         self.UPPER_RIGHT = ('right', 'top')
@@ -82,13 +82,13 @@ class InterfaceVars:
         if anchor_tuple[0] == 'left':
             img_anchor.append(0)
         elif anchor_tuple[0] == 'center':
-            img_anchor.append(image_object.sprite.width // 2)
+            img_anchor.append(image_object.sprite.image.width // 2)
         elif anchor_tuple[0] == 'right':
-            img_anchor.append(image_object.sprite.width)
+            img_anchor.append(image_object.sprite.image.width)
         if anchor_tuple[1] == 'top':
-            img_anchor.append(image_object.sprite.height)
+            img_anchor.append(image_object.sprite.image.height)
         elif anchor_tuple[1] == 'center':
-            img_anchor.append(image_object.sprite.height // 2)
+            img_anchor.append(image_object.sprite.image.height // 2)
         elif anchor_tuple[1] == 'bottom':
             img_anchor.append(0)
 
@@ -239,7 +239,7 @@ class Image:
         self.sprite.update(scale=scale)
 
     def pyglet_coor(self, window_obj):
-        self.sprite.y = window_obj.height - self.sprite.y
+        self.sprite.update(y=window_obj.height - self.sprite.y)
 
     def center(self):
         """Sets an image's anchor point to its center"""
@@ -331,6 +331,7 @@ class Button(Image):
             self.image_active.anchor_y = ay
 
     def set_anchor(self, anchor_tuple: tuple):
+        super().set_anchor(anchor_tuple)
         anchors = uivars.get_image_anchor(self, anchor_tuple)
         self.sprite.image.anchor_x = anchors[0]
         self.sprite.image.anchor_y = anchors[1]
