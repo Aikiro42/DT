@@ -18,21 +18,11 @@ from utils.sounds import *
 The engine of the game - imports almost everything
 '''
 
-# [Notes]==========================================================
-
-# ...yes. Unfinished business. Please don't mind this. We didn't specify these in the
-# proposal, after all.
-# todo: sana all easter egg
-# todo: instructions, credits
-# todo: save score with name
-
-# =================================================================
-
 # Easter Eggs =================================================================
 
 # No, this is definitely nothing, move along.
 
-edgar_pic = Image('assets/eggs/edgar.jpg', x=window.width // 2, y=window.height // 2)
+edgar_pic = Image('assets/eggs/edgar.png', x=window.width // 2, y=window.height // 2)
 edgar_pic.center()
 edgar_pic.pyglet_coor(window)
 edgar_draw = False
@@ -183,6 +173,12 @@ def clear_window():
 def draw_interface(g_state):
     if gamevars.allow_bg:
         for background_elem in uivars.ui_backgrounds[g_state]:
+            if g_state == uivars.INSTRUCTIONS and gamevars.is_weather:
+                game.instructions.instructions_legacy.draw()
+                continue
+            elif g_state == uivars.CREDITS and gamevars.is_weather:
+                game.credits.credits_legacy.draw()
+                continue
             uivars.draw_element(background_elem, window)
     for ui_element in uivars.ui_elements[g_state]:
         uivars.draw_element(ui_element, window)
@@ -302,6 +298,11 @@ def on_key_press(symbol, modifiers):
                     game.gamemode.codeline_label.color(255, 255, 255, 255)
                     # add to score
                     gamevars.score += 100
+
+                elif player_codeline == gamevars.weather:
+                    sfx_correct.play()
+                    gamevars.is_weather = not gamevars.is_weather
+                    game.gamemode.code_textbox.set_text('')
 
                 # This code runs if the code is correct
                 elif gamevars.codeline_str == player_codeline:

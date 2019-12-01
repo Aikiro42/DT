@@ -9,6 +9,8 @@ def back_button_event():
 credits_bg = AnimatedBackground('assets/backgrounds/credits_bg.gif', window)
 uivars.add_ui_background(uivars.CREDITS, credits_bg)
 
+credits_legacy = Background('assets/backgrounds/credits_bg.png', window)
+
 
 credits_img = Image('assets/credits/credits.png', x=window.width // 2, y=window.height // 2)
 credits_img.rescale(window.height/credits_img.sprite.image.height)

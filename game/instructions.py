@@ -9,6 +9,8 @@ def back_button_event():
 instructions_bg = AnimatedBackground('assets/backgrounds/instructions_bg.gif', window)
 uivars.add_ui_background(uivars.INSTRUCTIONS, instructions_bg)
 
+instructions_legacy = Background('assets/backgrounds/instructions_bg.png', window)
+
 instructions_img = Image('assets/instructions/instructions.png', x=window.width // 2, y=window.height // 2)
 instructions_img.center()
 img_scale = window.height/instructions_img.sprite.image.height

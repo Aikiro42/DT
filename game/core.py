@@ -98,6 +98,10 @@ class VarObj:
         self.is_daemon = False  # Flag for when the DaemonThread is scheduled
         self.daemon_draw = False  # Determines whether to draw the program crasher
 
+        # Changes instructions and credits bgs when entered
+        self.weather = '/weather rain 20010708'
+        self.is_weather = False
+
         # [Game and Sys vars] ===============================================================================
 
         # Title sprite animation variables
