@@ -185,6 +185,7 @@ display = pyglet.canvas.get_display()
 screen = display.get_screens()[0]
 window_w = screen.width
 window_h = screen.height
+print('Window size: {} x {}'.format(window_w, window_h))
 
 if gamevars.debug_res:
     window_w = 800

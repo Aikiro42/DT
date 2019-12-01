@@ -6,7 +6,7 @@ def back_button_event():
     gamevars.game_state = uivars.MAIN_MENU
 
 
-credits_bg = Background('assets/backgrounds/credits_bg.png', window)
+credits_bg = AnimatedBackground('assets/backgrounds/credits_bg.gif', window)
 uivars.add_ui_background(uivars.CREDITS, credits_bg)
 
 
