@@ -312,7 +312,7 @@ def on_key_press(symbol, modifiers):
                     game.gamemode.code_textbox.set_text('')
                     # recolor codeline label
                     game.gamemode.codeline_label.color(255, 255, 255, 255)
-                    # add to score
+                    # add to the score
                     gamevars.score += gamevars.increment_score()
                     # increment timer
                     gamevars.timer = min(gamevars.max_time, gamevars.timer + gamevars.timer_increment)
