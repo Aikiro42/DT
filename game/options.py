@@ -8,21 +8,27 @@ def main_menu_button_event():
     gamevars.game_state = uivars.MAIN_MENU
 
 
+'''
 def save_options():
     op_dict = read_options_ini()
-    op_dict['allow_bgm'] = gamevars.allow_bgm
-    op_dict['allow_sfx'] = gamevars.allow_sfx
+    op_dict['allow_bgm'] = str(gamevars.allow_bgm)
+    op_dict['allow_sfx'] = str(gamevars.allow_sfx)
     update_options_ini(op_dict)
+'''
 
 
 def is_bgm_allowed(allowed):
+    # Change gamevars var
     gamevars.allow_bgm = allowed
+    # Mute all music
     bgm_main_menu.set_is_not_mute(allowed)  # stops and plays main menu upon changing is_not_mute
     bgm_game_mode.is_not_mute = allowed
 
 
 def is_sfx_allowed(allowed):
+    # Change gamevars var
     gamevars.allow_sfx = allowed
+    # Mute all fx
     sfx_click.is_not_mute = allowed
     sfx_game_over_m.is_not_mute = allowed
     sfx_game_over.is_not_mute = allowed
@@ -39,16 +45,14 @@ def is_sfx_allowed(allowed):
 def bgm_toggle_event():
     sfx_options_click.play()
     bgm_toggle.change_state()
-    if not gamevars.is_daemon:
+    if not gamevars.is_daemon:  # Do not make it work if DaemonThread is scheduled
         is_bgm_allowed(bgm_toggle.state)
-        save_options()
 
 
 def sfx_toggle_event():
     sfx_options_click.play()
     sfx_toggle.change_state()
     is_sfx_allowed(sfx_toggle.state)
-    save_options()
 
 
 ui_y_offset = 100

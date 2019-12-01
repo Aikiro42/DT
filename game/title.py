@@ -36,6 +36,7 @@ def highscores_button_event():
 
 
 def quit_button_event():
+    save_options_to_ini()
     pyglet.app.exit()
 
 

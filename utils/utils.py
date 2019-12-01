@@ -38,7 +38,12 @@ def generate_options_default_ini(gen_options_ini=True, gen_default_ini=True):
         'allow_bgm': 'True',
         'allow_sfx': 'True',
         'allow_bg': 'True',
-        'allow_anim': 'True'
+        'allow_anim': 'True',
+        'allow_antialiasing': 'False',
+        'allow_transparency': 'True',
+        'display_fps': 'False',
+        'max_time': '59',
+        'max_code_depth': '7'
     }
     if gen_default_ini:
         update_options_ini(options_dict=def_ops, gen_default=True)  # Creates a new options_default.ini

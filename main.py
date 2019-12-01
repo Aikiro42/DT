@@ -1,6 +1,6 @@
 from pyglet.gl import *
 
-from game.core import window, fps_display, gamevars
+from game.core import window, fps_display, gamevars, save_options_to_ini
 import game.title
 import game.gamemode
 import game.pause
@@ -270,7 +270,6 @@ def on_key_press(symbol, modifiers):
                 game.options.is_bgm_allowed(False)
                 game.gamemode.code_textbox.set_text('')
 
-            # If code is correct, add to score and reset timer
             elif player_codeline == gamevars.edgar:  # Edgar easter egg
                 game.gamemode.code_textbox.set_text('')
                 global edgar_draw
@@ -308,6 +307,7 @@ def on_key_press(symbol, modifiers):
                 gamevars.score += gamevars.increment_score()
                 # increment timer
                 gamevars.timer = min(gamevars.max_time, gamevars.timer + gamevars.timer_increment)
+                gamevars.prev_timer = gamevars.timer
                 # change timer color
                 if gamevars.timer >= gamevars.timer_redline:
                     game.gamemode.timer_label.color(255, 255, 255, 255)
@@ -385,6 +385,14 @@ def on_mouse_motion(x, y, dx, dy):
     change_cursor(window.cursor)
 
 
+def on_close():
+    save_options_to_ini()
+    window.has_exit = True
+    from pyglet import app
+    if app.event_loop.is_running:
+        window.close()
+
+
 # =====================================================================================================================
 
 window.on_draw = on_draw
@@ -394,4 +402,5 @@ window.on_mouse_press = on_mouse_press
 window.on_mouse_drag = on_mouse_drag
 window.on_mouse_release = on_mouse_release
 window.on_mouse_motion = on_mouse_motion
+window.on_close = on_close
 pyglet.app.run()

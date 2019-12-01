@@ -1,6 +1,6 @@
 from pyglet.gl import *
 from utils.interface import *
-from utils.utils import gen_code, read_options_ini
+from utils.utils import gen_code, read_options_ini, generate_options_default_ini, update_options_ini
 
 '''
 
@@ -26,27 +26,63 @@ This is dependent on:
 # Called after the initialization of gamevars to immediately edit some of the flag variables
 def get_options():
     op_dict = read_options_ini()
-    gamevars.allow_bgm = eval(op_dict['allow_bgm'])
-    gamevars.allow_sfx = eval(op_dict['allow_sfx'])
-    gamevars.allow_bg = eval(op_dict['allow_bg'])
+    try:
+        gamevars.allow_bgm = eval(op_dict['allow_bgm'])
+        gamevars.allow_sfx = eval(op_dict['allow_sfx'])
+        gamevars.allow_bg = eval(op_dict['allow_bg'])
+        gamevars.allow_anim = eval(op_dict['allow_anim'])
+        gamevars.allow_antialiasing = eval(op_dict['allow_antialiasing'])
+        gamevars.allow_transparency = eval(op_dict['allow_transparency'])
+        gamevars.display_fps = eval(op_dict['display_fps'])
+        gamevars.max_time = eval(op_dict['max_time'])
+        gamevars.max_code_depth = eval(op_dict['max_code_depth'])
+    except KeyError:
+        generate_options_default_ini()
+
+def save_options_to_ini():
+    def_ops = {
+        'allow_bgm': str(gamevars.allow_bgm),
+        'allow_sfx': str(gamevars.allow_sfx),
+        'allow_bg': str(gamevars.allow_bg),
+        'allow_anim': str(gamevars.allow_anim),
+        'allow_antialiasing': str(gamevars.allow_antialiasing),
+        'allow_transparency': str(gamevars.allow_transparency),
+        'display_fps': str(gamevars.display_fps),
+        'max_time': str(gamevars.max_time),
+        'max_code_depth': str(gamevars.max_code_depth)
+    }
+    update_options_ini(def_ops)
 
 
 # Game variable class created to retrieve gamevars anywhere within the program
 class VarObj:
     def __init__(self):
-        # Ini settings
+        # [Ini settings] ====================================================================================
+
         self.allow_bgm = True  # Determines whether to allow bgm
         self.allow_sfx = True  # Determines whether to allow sfx
         self.allow_bg = True  # Lets animated backgrounds render when true
         self.allow_anim = True  # Determines whether title sprite will animate up and down in main menu
         self.allow_antialiasing = False  # Determines whether there will be opengl antialiasing
-        self.allow_transparency = True  # Determines whether to allow opengl transparency effects
-                                        # Kinda pointless since the sprites are made transparent
-        # Debug flags
+
+        # Determines whether to allow opengl transparency effects
+        # Kinda pointless since the sprites are made transparent
+        self.allow_transparency = True
+
+        self.display_fps = False  # Displays FPS in lower left corner of screen if true
+        self.max_time = 59  # Timer cap - codeline length and timer increment dependent on this variable
+
+        # Max code depth - setting time to a very high value will not make code deeper than this
+        self.max_code_depth = 7
+
+        # [Debug flags] =====================================================================================
+
         self.debug_bg = False  # Turns background to magenta for debug purposes
         self.debug_res = False  # Turns borderless resolution to 800x600
         self.is_count_dt = False  # Determines whether the program will increment the debug counter every update
         self.debug_dt = 0  # The debug counter - incremented if is_count_dt and update is called
+
+        # [Easter egg flags] ================================================================================
 
         self.kill_command = "order_66.execute()"  # Cheat for a game over
         self.eggnames = ['luis', 'rain', 'jackie', 'enrico']  # Cheats for easy 100 points
@@ -58,16 +94,16 @@ class VarObj:
         self.is_rawstarr = False  # Determines if the program is in rawstarr mode
 
         # Daemon Mode - Schedules a DaemonThread that crashes the game
-        # self.daemon = 'DaemonThread<0x29A>.start(self.soul)'  # Code to summon a demon
-        self.daemon = 'self.soul'  # Code to summon a demon
+        self.daemon = 'self.soul.sell()'  # Code to summon a demon
         self.is_daemon = False  # Flag for when the DaemonThread is scheduled
         self.daemon_draw = False  # Determines whether to draw the program crasher
+
+        # [Game and Sys vars] ===============================================================================
 
         # Title sprite animation variables
         self.bounce_threshold = 10  # Determines how far the sprite will bounce up and down
         self.bounce = 0  # Position offset of the sprite, incremented and decremented depending on...
         self.bounce_increment = 1  # ...this variable.
-        self.display_fps = False  # Displays FPS in lower left corner of screen if true
 
         # Duration (in seconds) of the codeline recolor effects when the player
         # enters a mismatch
@@ -76,27 +112,33 @@ class VarObj:
         self.score = 0  # The current score of the player - immediately calculated and set
         self.display_score = 0  # The displayed score of the player - this is incremented
         self.display_increment = 5  # The amount the displayed score is incremented when score is recalculated
-        self.max_time = 59  # Timer cap - codeline length and timer increment dependent on this variable
 
         # Amount of time (in seconds) to increment when player submits correctly
         self.timer_increment = self.max_time // 20
 
         # Game mode timer - decremented by scheduled timer decrement function during game mode
         self.timer = self.max_time
+        self.prev_timer = self.timer
 
         # Timer redline - low time remaining warning effects activate when timer is below this threshold
-        self.timer_redline = 10
+        # Dependent on max time
+        self.timer_redline = (self.max_time // 6) + 1
+
+        # Score bonus time threshold
+        # if the player submits a matching line of code within this time frame, his score is doubled.
+        # Dependent on max time
+        self.bonus_score_threshold = self.max_time * 0.042
 
         # Code depth - determines depth of code
-        self.code_depth = min((self.max_time // 20) + 1, 7)
+        # Dependent on max time - max code depth is ?
+        # self.code_depth = min((self.max_time // 20) + 1, 7)
+        self.code_depth = min((self.max_time // 20) + 1, self.max_code_depth)
 
         # Codeline string - the code entered by the player is compared against this string
         self.codeline_str = gen_code(self.code_depth)
 
         # The player codeline - updated when the player presses enter, and then almost simultaneously refreshed
         self.player_codeline = ''
-
-        # VARIABLES NO TOUCHIE TOUCHIE BELOW
 
         self.game_state = uivars.MAIN_MENU  # State flag for game - determines which UI to draw
 
@@ -128,12 +170,15 @@ class VarObj:
     """
 
     def increment_score(self):
-        return len(self.codeline_str) * 10 + self.timer * 2
+        score = len(self.codeline_str) * 10 + self.timer * 2
+        if self.prev_timer - self.timer < self.bonus_score_threshold:
+            score *= 2
+        return score
 
 
 # Variable that is accessible project-wide
 gamevars = VarObj()
-get_options()
+get_options()  # get options from ini before initializing the window
 
 # interface initialization, uses stuff from utils.interface, pyglet and pyglet.gl
 display = pyglet.canvas.get_display()
@@ -166,7 +211,7 @@ if gamevars.debug_bg:
     glClearColor(1, 0, 1, 1)
 
 if gamevars.allow_antialiasing:
-    glEnable(GL_LINE_SMOOTH) # antialiasing
+    glEnable(GL_LINE_SMOOTH)  # antialiasing
     glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
 
 if gamevars.allow_transparency:
