@@ -257,10 +257,23 @@ class Image:
 
 
 class Background(Image):
-    def __init__(self, background_dir, window_obj, batch=None):
-        super(Background, self).__init__(background_dir, x=window_obj // 2, y=window_obj // 2, batch=batch)
+    def __init__(self, background_dir, window_obj, batch=None, fill=True):
+        super(Background, self).__init__(background_dir,
+                                         x=window_obj.width // 2,
+                                         y=window_obj.height // 2,
+                                         batch=batch)
         self.set_anchor(uivars.CENTER)
+        if fill:
+            self.fill_dimensions(window_obj)
         self.pyglet_coor(window_obj)
+
+    def set_dimensions(self, width, height):
+        height_scale = height / self.sprite.height
+        width_scale = width / self.sprite.width
+        self.sprite.update(scale_x=width_scale, scale_y=height_scale)
+
+    def fill_dimensions(self, window_obj):
+        self.set_dimensions(window_obj.width, window_obj.height)
 
 
 class AnimatedBackground:
@@ -284,8 +297,7 @@ class AnimatedBackground:
     def set_dimensions(self, width, height):
         height_scale = height / self.sprite.height
         width_scale = width / self.sprite.width
-        self.sprite.scale_x = width_scale
-        self.sprite.scale_y = height_scale
+        self.sprite.update(scale_x=width_scale, scale_y=height_scale)
 
     def draw(self):
         self.sprite.draw()

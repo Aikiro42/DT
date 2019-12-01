@@ -39,8 +39,9 @@ def is_sfx_allowed(allowed):
 def bgm_toggle_event():
     sfx_options_click.play()
     bgm_toggle.change_state()
-    is_bgm_allowed(bgm_toggle.state)
-    save_options()
+    if not gamevars.is_daemon:
+        is_bgm_allowed(bgm_toggle.state)
+        save_options()
 
 
 def sfx_toggle_event():
@@ -53,7 +54,7 @@ def sfx_toggle_event():
 ui_y_offset = 100
 
 # Background
-options_bg = AnimatedBackground('assets/options_bg.gif', window)
+options_bg = AnimatedBackground('assets/backgrounds/options_bg.gif', window)
 uivars.add_ui_background(uivars.OPTIONS, options_bg)
 
 options_text = Image('assets/options/options.png', x=window.width // 2)

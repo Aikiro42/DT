@@ -25,7 +25,7 @@ def try_again_button_event():
     gamevars.game_state = uivars.GAME_MODE
 
 
-endgame_bg = AnimatedBackground('assets/endgame_bg.gif', window)
+endgame_bg = AnimatedBackground('assets/backgrounds/endgame_bg.gif', window)
 uivars.add_ui_background(uivars.ENDGAME, endgame_bg)
 
 time_up_text = Image('assets/endgame/time_up.png', x=window.width // 2)

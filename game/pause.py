@@ -24,9 +24,13 @@ def restart_button_event():
     # reset gamemode textboxes
     uivars.reset_ui_textboxes(uivars.GAME_MODE)
     # reset variables
-    gamevars.timer = gamevars.max_time
+    if not gamevars.is_daemon:
+        gamevars.timer = gamevars.max_time
     gamevars.score = 0
-    gamevars.codeline_str = "print('Hello again!')"
+    if not gamevars.is_daemon:
+        gamevars.codeline_str = "print('Hello again!')"
+    else:
+        gamevars.codeline_str = "run()"
     gamevars.is_pause = False
     gamevars.is_restart = True
     gamevars.is_rawstarr = False
@@ -44,7 +48,7 @@ def resume_button_event():
     gamevars.game_state = uivars.GAME_MODE
 
 
-pause_bg = AnimatedBackground('assets/pause_bg.gif', window)
+pause_bg = AnimatedBackground('assets/backgrounds/pause_bg.gif', window)
 uivars.add_ui_background(uivars.PAUSE, pause_bg)
 
 pause_text = Image('assets/pause/pause.png', x=window.width // 2)

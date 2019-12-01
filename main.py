@@ -8,7 +8,7 @@ import game.endgame
 import game.options
 import game.highscores
 
-from utils.interface import uivars, Textbox, Button, ToggledButton, Image
+from utils.interface import uivars, Textbox, Button, ToggledButton, Image, Background
 from utils.utils import *
 from utils.sounds import *
 
@@ -30,15 +30,22 @@ The engine of the game - imports almost everything
 
 # No, this is definitely nothing, move along.
 
-edgar_pic = Image('assets/edgar.jpg', x=window.width // 2, y=window.height // 2)
+edgar_pic = Image('assets/eggs/edgar.jpg', x=window.width // 2, y=window.height // 2)
 edgar_pic.center()
 edgar_pic.pyglet_coor(window)
 edgar_draw = False
+
+daemon_pic = Background('assets/eggs/daemon.png', window)
+daemon_draw = False
 
 
 def dismiss_class(dt):
     global edgar_draw
     edgar_draw = False
+
+
+def crash_game(dt):
+    pyglet.app.exit()
 
 
 # main utility functions =============================================================================
@@ -58,22 +65,30 @@ def set_audio_options():
 
 def check_for_endgame():
     if gamevars.timer < 0 and gamevars.game_state != uivars.ENDGAME:
-        sfx_game_over.play()
-        sfx_game_over_m.play()
-        bgm_game_mode.stop()
-        bgm_rawstarr.stop()
-        game.gamemode.code_textbox.set_text('')
-        game.gamemode.timer_label.color(255, 255, 255, 255)
-        window.unfocus()
-        pyglet.clock.unschedule(timer_countdown)
-        gamevars.is_timer = False
-        gamevars.is_rawstarr = False
-        gamevars.timer = gamevars.max_time
-        game.endgame.endgame_score_label.text = 'Score: ' + str(gamevars.score)
-        update_score_list(gamevars.score)  # stores score to file
-        game.highscores.update_highscores()
-        gamevars.display_score = gamevars.score = 0
-        gamevars.game_state = uivars.ENDGAME
+        if not gamevars.is_daemon:
+            sfx_game_over.play()
+            sfx_game_over_m.play()
+            bgm_game_mode.stop()
+            bgm_rawstarr.stop()
+            game.gamemode.code_textbox.set_text('')
+            game.gamemode.timer_label.color(255, 255, 255, 255)
+            window.unfocus()
+            pyglet.clock.unschedule(timer_countdown)
+            gamevars.is_timer = False
+            gamevars.is_rawstarr = False
+            gamevars.timer = gamevars.max_time
+            game.endgame.endgame_score_label.text = 'Score: ' + str(gamevars.score)
+            update_score_list(gamevars.score)  # stores score to file
+            game.highscores.update_highscores()
+            gamevars.display_score = gamevars.score = 0
+            gamevars.game_state = uivars.ENDGAME
+        else:
+            global daemon_draw
+            bgm_main_menu.stop()
+            bgm_game_mode.stop()
+            daemon_draw = True
+            pyglet.clock.schedule_once(crash_game, 1)
+            pass
 
 
 # Function scheduled by pyglet's clock when it's game time.
@@ -83,7 +98,7 @@ def check_for_endgame():
 def timer_countdown(dt):
     if not gamevars.is_rawstarr:
         gamevars.timer -= 1
-    if gamevars.timer < gamevars.timer_redline:
+    if gamevars.timer < gamevars.timer_redline or gamevars.is_daemon:
         game.gamemode.timer_label.color(255, 100, 100, 255)
         sfx_timer.play()
     check_for_endgame()
@@ -117,7 +132,7 @@ def update(dt):
             pyglet.clock.schedule_interval(timer_countdown, 1)
             gamevars.is_timer = True
     else:
-        if gamevars.is_timer:
+        if gamevars.is_timer and not gamevars.is_daemon:
             pyglet.clock.unschedule(timer_countdown)
             gamevars.is_timer = False
 
@@ -205,6 +220,9 @@ def on_draw():
         fps_display.draw()
     if edgar_draw:
         edgar_pic.draw()
+    if daemon_draw:
+        daemon_pic.draw()
+        sfx_daemon.play()
 
 
 # Called when the window is resized.
@@ -237,17 +255,29 @@ def on_key_press(symbol, modifiers):
         # check code when enter is pressed
         if symbol == pyglet.window.key.ENTER and window.focus:
             player_codeline = game.gamemode.code_textbox.get_text()
+
             # if code matches kill command
             if player_codeline == gamevars.kill_command:
                 # end timer
                 gamevars.timer = -1
                 check_for_endgame()
+
+            # if code matches DaemonThread schedule command
+            if player_codeline == gamevars.daemon:
+                gamevars.is_daemon = True
+                bgm_main_menu.stop()
+                bgm_game_mode.stop()
+                game.options.is_bgm_allowed(False)
+                game.gamemode.code_textbox.set_text('')
+
             # If code is correct, add to score and reset timer
             elif player_codeline == gamevars.edgar:  # Edgar easter egg
                 game.gamemode.code_textbox.set_text('')
                 global edgar_draw
                 edgar_draw = True
                 pyglet.clock.schedule_once(dismiss_class, 1)
+
+            # If code is correct, change game mechanics
             elif player_codeline == gamevars.rawstarr:
                 game.gamemode.code_textbox.set_text('')
                 bgm_game_mode.stop()

@@ -60,6 +60,7 @@ sfx_game_over = Sound('assets/sfx/sfx_game_over.wav')
 sfx_pause = Sound('assets/sfx/sfx_pause.wav')
 sfx_timer = Sound('assets/sfx/sfx_timer.wav')
 sfx_options_click = Sound('assets/sfx/sfx_options_click.wav')
+sfx_daemon = Sound('assets/sfx/sfx_daemon.wav')
 
 bgm_main_menu = Music('assets/bgm/bgm_main_menu.wav', loop=True)
 bgm_game_mode = Music('assets/bgm/bgm_game_mode.wav', loop=True)

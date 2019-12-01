@@ -39,8 +39,9 @@ class VarObj:
         self.allow_sfx = True  # Determines whether to allow sfx
         self.allow_bg = True  # Lets animated backgrounds render when true
         self.allow_anim = True  # Determines whether title sprite will animate up and down in main menu
-        self.allow_antialiasing = False
-        self.allow_transparency = True
+        self.allow_antialiasing = False  # Determines whether there will be opengl antialiasing
+        self.allow_transparency = True  # Determines whether to allow opengl transparency effects
+                                        # Kinda pointless since the sprites are made transparent
         # Debug flags
         self.debug_bg = False  # Turns background to magenta for debug purposes
         self.debug_res = False  # Turns borderless resolution to 800x600
@@ -56,9 +57,11 @@ class VarObj:
         self.rawstarr = 'schedule_until(rawstarr, end=self.death)'  # Code for rawstarr mode
         self.is_rawstarr = False  # Determines if the program is in rawstarr mode
 
-        # Demon Mode (not yet implemented) - Schedules a demon attack that crashes the game
-        self.heart_attack = 'DaemonThread<0x29A>.start(self.soul)'  # Code to summon a demon
-        self.is_heart_attack = False  # Determines if the demon will attack
+        # Daemon Mode - Schedules a DaemonThread that crashes the game
+        # self.daemon = 'DaemonThread<0x29A>.start(self.soul)'  # Code to summon a demon
+        self.daemon = 'self.soul'  # Code to summon a demon
+        self.is_daemon = False  # Flag for when the DaemonThread is scheduled
+        self.daemon_draw = False  # Determines whether to draw the program crasher
 
         # Title sprite animation variables
         self.bounce_threshold = 10  # Determines how far the sprite will bounce up and down

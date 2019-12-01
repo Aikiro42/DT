@@ -22,8 +22,7 @@ def update_highscores():
         i += 1
 
 
-
-highscores_bg = AnimatedBackground('assets/highscores_bg.gif', window)
+highscores_bg = AnimatedBackground('assets/backgrounds/highscores_bg.gif', window)
 uivars.add_ui_background(uivars.HIGHSCORES, highscores_bg)
 
 highscores_text = Label('HIGH SCORES', font_name='Arcade Alternate',
@@ -44,7 +43,6 @@ uivars.add_ui_button(uivars.HIGHSCORES, main_menu_button)
 main_menu_button.click_event = main_menu_button_event
 
 score_separation = 10
-
 
 score_1 = Label('1. 00000000', font_name='Arcade Alternate', font_size=24, x=window.width // 2, y=0)
 uivars.add_ui_label(uivars.HIGHSCORES, score_1)

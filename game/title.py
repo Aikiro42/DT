@@ -15,7 +15,8 @@ def start_button_event():
     # stop main menu bgm
     gamevars.codeline_str = "print('Hello World!')"
     gamevars.player_codeline = ''
-    gamevars.timer = gamevars.max_time
+    if not gamevars.is_daemon:
+        gamevars.timer = gamevars.max_time
     # stop main menu bgm
     bgm_main_menu.stop()
     # play sfx_game_mode_bgm
@@ -39,7 +40,7 @@ def quit_button_event():
 
 
 # Background
-title_bg = AnimatedBackground('assets/title_bg.gif', window)
+title_bg = AnimatedBackground('assets/backgrounds/title_bg.gif', window)
 uivars.add_ui_background(uivars.MAIN_MENU, title_bg)
 
 # Title text
