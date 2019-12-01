@@ -399,7 +399,6 @@ class ToggledButton:
         else:
             self.button = self.button_a
         self.state = not self.state
-        print(self.state)
 
     def set_coor(self, x, y):
         self.button_a.set_coor(x, y)

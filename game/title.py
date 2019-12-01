@@ -16,7 +16,9 @@ def start_button_event():
     gamevars.codeline_str = "print('Hello World!')"
     gamevars.player_codeline = ''
     gamevars.timer = gamevars.max_time
+    # stop main menu bgm
     bgm_main_menu.stop()
+    # play sfx_game_mode_bgm
     sfx_game_mode_init.play()
     # play game mode bgm
     bgm_game_mode.play()

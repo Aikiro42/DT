@@ -1,6 +1,6 @@
 from pyglet.gl import *
 from utils.interface import *
-from utils.utils import gen_code
+from utils.utils import gen_code, read_options_ini
 
 '''
 
@@ -21,14 +21,29 @@ This is dependent on:
 
 '''
 
+
+# Gets the options from options.ini
+# Called after the initialization of gamevars to immediately edit some of the flag variables
+def get_options():
+    op_dict = read_options_ini()
+    gamevars.allow_bgm = eval(op_dict['allow_bgm'])
+    gamevars.allow_sfx = eval(op_dict['allow_sfx'])
+    gamevars.allow_bg = eval(op_dict['allow_bg'])
+
+
 # Game variable class created to retrieve gamevars anywhere within the program
 class VarObj:
     def __init__(self):
-        # Debug flags
+        # Ini settings
+        self.allow_bgm = True  # Determines whether to allow bgm
+        self.allow_sfx = True  # Determines whether to allow sfx
         self.allow_bg = True  # Lets animated backgrounds render when true
+        self.allow_anim = True  # Determines whether title sprite will animate up and down in main menu
+        self.allow_antialiasing = False
+        self.allow_transparency = True
+        # Debug flags
         self.debug_bg = False  # Turns background to magenta for debug purposes
         self.debug_res = False  # Turns borderless resolution to 800x600
-        self.allow_anim = True  # Determines whether title sprite will animate up and down in main menu
         self.is_count_dt = False  # Determines whether the program will increment the debug counter every update
         self.debug_dt = 0  # The debug counter - incremented if is_count_dt and update is called
 
@@ -103,18 +118,19 @@ class VarObj:
 
         self.animate_score_update = False  # True when the displayed score must be increased
 
-
     """
     This is a function that calculates the player's score, taking into account many relevant factors
     
     :return Integer - A recalculation of the player's score
     """
+
     def increment_score(self):
         return len(self.codeline_str) * 10 + self.timer * 2
 
 
 # Variable that is accessible project-wide
 gamevars = VarObj()
+get_options()
 
 # interface initialization, uses stuff from utils.interface, pyglet and pyglet.gl
 display = pyglet.canvas.get_display()
@@ -145,8 +161,12 @@ fps_display = pyglet.window.FPSDisplay(window=window)
 glClearColor(0, 0, 0, 0)
 if gamevars.debug_bg:
     glClearColor(1, 0, 1, 1)
-# glEnable(GL_LINE_SMOOTH) # antialiasing
-glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
-glEnable(GL_BLEND)  # transparency
-glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)  # transparency
-# glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+
+if gamevars.allow_antialiasing:
+    glEnable(GL_LINE_SMOOTH) # antialiasing
+    glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE)
+
+if gamevars.allow_transparency:
+    glEnable(GL_BLEND)  # transparency
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)  # transparency
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)  # Texture Parameters

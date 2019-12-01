@@ -1,37 +1,56 @@
 from game.core import *
 from utils.interface import *
 from utils.sounds import *
+from utils.utils import read_options_ini, update_options_ini
 
 
 def main_menu_button_event():
     gamevars.game_state = uivars.MAIN_MENU
 
 
+def save_options():
+    op_dict = read_options_ini()
+    op_dict['allow_bgm'] = gamevars.allow_bgm
+    op_dict['allow_sfx'] = gamevars.allow_sfx
+    update_options_ini(op_dict)
+
+
+def is_bgm_allowed(allowed):
+    gamevars.allow_bgm = allowed
+    bgm_main_menu.set_is_not_mute(allowed)  # stops and plays main menu upon changing is_not_mute
+    bgm_game_mode.is_not_mute = allowed
+
+
+def is_sfx_allowed(allowed):
+    gamevars.allow_sfx = allowed
+    sfx_click.is_not_mute = allowed
+    sfx_game_over_m.is_not_mute = allowed
+    sfx_game_over.is_not_mute = allowed
+    sfx_game_mode_init.is_not_mute = allowed
+    sfx_pause.is_not_mute = allowed
+    sfx_click.is_not_mute = allowed
+    sfx_correct.is_not_mute = allowed
+    sfx_error.is_not_mute = allowed
+    sfx_hover.is_not_mute = allowed
+    sfx_type.is_not_mute = allowed
+    sfx_timer.is_not_mute = allowed
+
+
 def bgm_toggle_event():
     sfx_options_click.play()
     bgm_toggle.change_state()
-    bgm_main_menu.set_is_not_mute(bgm_toggle.state)  # stops and plays main menu upon changing is_not_mute
-    bgm_game_mode.is_not_mute = bgm_toggle.state
+    is_bgm_allowed(bgm_toggle.state)
+    save_options()
 
 
 def sfx_toggle_event():
     sfx_options_click.play()
     sfx_toggle.change_state()
-    sfx_click.is_not_mute = sfx_toggle.state
-    sfx_game_over_m.is_not_mute = sfx_toggle.state
-    sfx_game_over.is_not_mute = sfx_toggle.state
-    sfx_game_mode_init.is_not_mute = sfx_toggle.state
-    sfx_pause.is_not_mute = sfx_toggle.state
-    sfx_click.is_not_mute = sfx_toggle.state
-    sfx_correct.is_not_mute = sfx_toggle.state
-    sfx_error.is_not_mute = sfx_toggle.state
-    sfx_hover.is_not_mute = sfx_toggle.state
-    sfx_type.is_not_mute = sfx_toggle.state
-    sfx_timer.is_not_mute = sfx_toggle.state
+    is_sfx_allowed(sfx_toggle.state)
+    save_options()
 
 
 ui_y_offset = 100
-
 
 # Background
 options_bg = AnimatedBackground('assets/options_bg.gif', window)
@@ -82,7 +101,7 @@ main_menu_button.pyglet_coor(window)
 uivars.add_ui_button(uivars.OPTIONS, main_menu_button)
 main_menu_button.click_event = main_menu_button_event
 
-b_rescale = (window.width/uivars.rescaling_factor)
-b_rescale += (1 - b_rescale)/1.5
+b_rescale = (window.width / uivars.rescaling_factor)
+b_rescale += (1 - b_rescale) / 1.5
 for b in uivars.ui_buttons[uivars.OPTIONS]:
     b.rescale(b_rescale)

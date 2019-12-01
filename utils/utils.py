@@ -8,6 +8,77 @@ def get_differing_index(str1, str2):
     return char_compare_list[0]
 
 
+"""
+Checks for the existence of the ini files,
+generates nonexistent ini files
+"""
+
+
+def check_options_inis():
+    try:
+        f = open('options.ini', 'r')
+        f.close()
+    except FileNotFoundError:
+        generate_options_default_ini(gen_default_ini=False)
+    try:
+        f = open('options_default.ini', 'r')
+        f.close()
+    except FileNotFoundError:
+        generate_options_default_ini(gen_options_ini=False)
+
+
+"""
+Generates the inis
+Generates all inis by default
+"""
+
+
+def generate_options_default_ini(gen_options_ini=True, gen_default_ini=True):
+    def_ops = {
+        'allow_bgm': 'True',
+        'allow_sfx': 'True',
+        'allow_bg': 'True',
+        'allow_anim': 'True'
+    }
+    if gen_default_ini:
+        update_options_ini(options_dict=def_ops, gen_default=True)  # Creates a new options_default.ini
+    if gen_options_ini:
+        update_options_ini(options_dict=def_ops, gen_default=False)  # Creates a new options.ini
+
+    return def_ops
+
+
+"""
+Returns a dictionary containing the
+configurations specified in inis
+"""
+def read_options_ini():
+    check_options_inis()
+    with open('options.ini', 'r') as f:
+        lines = f.readlines()
+    options = [e.strip() for e in lines]
+    options_dict = {}
+    for option in options:
+        option = option.split('=')
+        options_dict[option[0]] = option[1]
+    return options_dict
+
+"""
+Updates the ini files
+"""
+def update_options_ini(options_dict=None, gen_default=False):
+    if options_dict:
+        if gen_default:
+            x = open('options_default.ini', 'w')
+        else:
+            x = open('options.ini', 'w')
+        for option in options_dict:
+            x.write('{}={}\n'.format(option, options_dict[option]))
+        x.close()
+    else:
+        generate_options_default_ini()
+
+
 def get_score_list() -> list:
     try:
         open('scores', 'r')

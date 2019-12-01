@@ -47,6 +47,15 @@ def dismiss_class(dt):
 # Was originally in the update() function, but it caused
 # performance problems (imagine checking every moment instead of every second)
 
+def set_audio_options():
+    game.options.is_bgm_allowed(gamevars.allow_bgm)
+    game.options.is_sfx_allowed(gamevars.allow_sfx)
+    if game.options.bgm_toggle.state != gamevars.allow_bgm:
+        game.options.bgm_toggle.change_state()
+    if game.options.sfx_toggle.state != gamevars.allow_sfx:
+        game.options.sfx_toggle.change_state()
+
+
 def check_for_endgame():
     if gamevars.timer < 0 and gamevars.game_state != uivars.ENDGAME:
         sfx_game_over.play()
@@ -131,6 +140,7 @@ def update(dt):
         game.gamemode.timer_label.text = str(gamevars.timer)
 
 
+set_audio_options()
 pyglet.clock.schedule_interval(update, 1 / 60)
 bgm_main_menu.play()
 
