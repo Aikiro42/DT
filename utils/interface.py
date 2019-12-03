@@ -275,6 +275,9 @@ class Background(Image):
     def fill_dimensions(self, window_obj):
         self.set_dimensions(window_obj.width, window_obj.height)
 
+    def grow(self, amount):
+        self.sprite.update(scale=self.sprite.scale + amount)
+
 
 class AnimatedBackground:
     def __init__(self, gif_dir, window_obj, full_scale=True, batch=None):

@@ -77,6 +77,7 @@ class VarObj:
 
         # [Debug flags] =====================================================================================
 
+        self.start_daemon_immediately = False  # Immediately starts daemon bloat upon starting the game
         self.debug_bg = False  # Turns background to magenta for debug purposes
         self.debug_res = False  # Turns borderless resolution to 800x600
         self.is_count_dt = False  # Determines whether the program will increment the debug counter every update

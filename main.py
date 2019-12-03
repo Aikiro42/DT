@@ -36,6 +36,11 @@ def dismiss_class(dt):
     edgar_draw = False
 
 
+def bloat_daemon(dt):
+    daemon_pic.grow(0.1)
+    sfx_daemon.play()
+
+
 def crash_game(dt):
     pyglet.app.exit()
 
@@ -79,6 +84,7 @@ def check_for_endgame():
             bgm_main_menu.stop()
             bgm_game_mode.stop()
             daemon_draw = True
+            pyglet.clock.schedule_interval(bloat_daemon, 1/30)
             pyglet.clock.schedule_once(crash_game, 1)
             pass
 
@@ -150,6 +156,10 @@ def update(dt):
 set_audio_options()
 pyglet.clock.schedule_interval(update, 1 / 60)
 bgm_main_menu.play()
+if gamevars.start_daemon_immediately:
+    gamevars.is_daemon = True
+    gamevars.timer = -1
+    check_for_endgame()
 
 # [convenience functions]==============================================================================================
 
@@ -220,7 +230,6 @@ def on_draw():
         edgar_pic.draw()
     if daemon_draw:
         daemon_pic.draw()
-        sfx_daemon.play()
 
 
 # Called when the window is resized.
