@@ -1,4 +1,4 @@
 future==0.18.2
-numpy==1.17.4
+numpy==1.22.0
 pygame==1.9.6
 pyglet==1.4.7
