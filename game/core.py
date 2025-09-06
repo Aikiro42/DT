@@ -1,3 +1,4 @@
+import pyglet
 from pyglet.gl import *
 from utils.interface import *
 from utils.utils import gen_code, read_options_ini, generate_options_default_ini, update_options_ini
@@ -186,7 +187,7 @@ gamevars = VarObj()
 get_options()  # get options from ini before initializing the window
 
 # interface initialization, uses stuff from utils.interface, pyglet and pyglet.gl
-display = pyglet.canvas.get_display()
+display = pyglet.display.get_display()
 screen = display.get_screens()[0]
 window_w = screen.width
 window_h = screen.height

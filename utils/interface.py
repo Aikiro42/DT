@@ -1,4 +1,5 @@
 import pyglet
+from pyglet import shapes
 from copy import copy, deepcopy
 from utils.sounds import *
 
@@ -113,18 +114,14 @@ class Coordinates:
         self.y = window_obj.height - self.y
 
 
-# Don't alter me
 class Rectangle(object):
     """Draws a rectangle into a batch."""
 
     def __init__(self, x1, y1, x2, y2, batch, color=(200, 200, 220, 255)):
-        self.vertex_list = pyglet.graphics.vertex_list(4,
-                                                       ('v2i', [x1, y1, x2, y1, x2, y2, x1, y2]),
-                                                       ('c4B', color * 4)
-                                                       )
+        shapes.Rectangle(x1, y1, x2, y2, color=color, batch=batch)
 
-    def draw(self):
-        self.vertex_list.draw(pyglet.gl.GL_QUADS)
+    # def draw(self):
+    #     self.vertex_list.draw(pyglet.gl.GL_QUADS)
 
 
 class Textbox(object):
@@ -142,7 +139,7 @@ class Textbox(object):
         height = font.ascent - font.descent
 
         self.layout = pyglet.text.layout.IncrementalTextLayout(
-            self.document, width, height, multiline=False)
+            self.document, width=width, height=height, multiline=False)
         self.caret = pyglet.text.caret.Caret(self.layout)
 
         self.layout.x = x
@@ -201,7 +198,7 @@ class Textbox(object):
     def draw(self):
         if not self.has_outline:
             self.draw_rectangle()
-        self.rectangle.draw()
+        self.batch.invalidate()
         self.layout.draw()
         self.rendered = True
 
